@@ -12,17 +12,20 @@
 
 using namespace std;
 
-const int STATE_SIZE = 7; 			// 7 elements per state, 3 missionaries, 3 cannibals
-const int SEARCH_SPACE_SIZE = 128; 	// 2^7 = 128 possible states
-const int MAX_LOCATIONS = 2; 		// 2 locations, left river, right river
-const int GROUP_SIZE = 3; 			// 3 missionaries or 3 cannibals
-const int NUM_PEOPLE = 6;
-const int BOAT_CAPACITY = 2; 		// 2 seats
-const short unsigned int RIGHT_RIVER = 1;
-const short unsigned int LEFT_RIVER = 0;
+const int STATE_SIZE = 7; 					// 7 elements per state, 3 missionaries, 3 cannibals
+const int SEARCH_SPACE_SIZE = 128; 			// 2^7 = 128 possible states
+const int MAX_LOCATIONS = 2; 				// 2 locations, left river, right river
+const int GROUP_SIZE = 3; 					// 3 missionaries or 3 cannibals
+const int NUM_PEOPLE = 6;					// 3 missionaries and 3 cannibals
+const int BOAT_CAPACITY = 2; 				// 2 seats
+const short unsigned int RIGHT_RIVER = 1;	// right river
+const short unsigned int LEFT_RIVER = 0;	// left river
 
-vector<vector<int>> cachedPaths = vector<vector<int>>();
 bool vistedSearchSpace [SEARCH_SPACE_SIZE] = {0};
+
+int bestDepth = 10000;
+
+short unsigned int* searchSpaceBinary[SEARCH_SPACE_SIZE][STATE_SIZE] = {0};
 
 
 // ---------------------------------------- HELPER FUNCTIONS -------------------------------------------------
@@ -51,24 +54,6 @@ short unsigned int* intToBinary(int value) {
 	return binary;
 }
 
-void cachePath(short unsigned int state[], int solutionID) {
-	int value = binaryToInt(state);
-	if (solutionID >= cachedPaths.size()) {
-		vector<int> newPath = vector<int>();
-		cachedPaths.push_back(newPath);
-	}
-	cachedPaths[solutionID].push_back(value);
-}
-
-bool visited(short unsigned int state[]) {
-	int value = binaryToInt(state);
-	if (vistedSearchSpace[value])
-		return true;
-	else
-		vistedSearchSpace[value] = true;
-	return false;
-}
-
 void printState(short unsigned int state[]) {
 	for (int j = 0; j < STATE_SIZE; ++j) 
 		cout << state[j];
@@ -82,65 +67,139 @@ void printSearchSpace(short unsigned int searchSpace[][STATE_SIZE]) {
 	}
 }
 
-// ------------------------------------------------------------------------------------------------------------
+int differences(short unsigned int* bin1, short unsigned int* bin2) {
+	int count = 0;
+	for (int i = 0; i < STATE_SIZE; ++i) 
+		if (bin1[i] != bin2[i])
+			count++;
+	return count;
+}
 
-bool isFinalState(short unsigned int state[]) {
+// ----------------------------------- TREE LOGIC FOR PATH FINDING -------------------------------------------
+
+struct node { 
+	int decimalState; 
+	short unsigned int* binaryState;
+
+	node* parent;
+	vector<struct node*> children;
+	int depth;
+
+	void print() {
+		printState(binaryState);
+	}
+	void printAncestors() {
+		node* current = this;
+		while(current != nullptr) {
+			current->print();
+			current = current->parent;
+		}
+	}
+}; 
+
+int treeSize = 0;
+
+node* makeNode(node* par, int value) {
+	struct node* newNode = new struct node();
+	if (par != nullptr) {
+		par->children.push_back(newNode);
+		newNode->depth = par->depth + 1;
+	} else {
+		newNode->depth = 0;
+	}
+	treeSize++;
+	newNode->parent = par;
+	newNode->decimalState = value;
+	newNode->binaryState = intToBinary(value);
+	newNode->children = vector<struct node*>();
+	return newNode;
+}
+
+vector<node*> solutionLeafNodes = vector <node*>();
+vector<node*> nonSolutionLeafNodes = vector <node*>();
+
+bool visitedInTree(node* node) {
+	return vistedSearchSpace[node->decimalState];
+}
+
+// search up the tree to see if another node matches the node
+int numberOfVisitsInBranch(node* node) {
+	int value = node->decimalState;
+	int counter = 0;
+	node = node->parent;
+	while(node != nullptr) {
+		if (node->decimalState == value) 
+			counter++;
+		node = node->parent;
+	}
+	return counter;
+}
+
+// ---------------------------------------- PROBLEM LOGIC ----------------------------------------------------
+
+bool isFinalState(node* node) {
 	// final state when everyone is on right side of river
 	for (int i = 0; i < STATE_SIZE; ++i)
-		if (state[i] != 1)
+		if (node->binaryState[i] != 1)
 			return false;
 	return true;
 }
 
-bool isIllegalState(short unsigned int state[]) {
+bool isIllegalState(node* node) {
 	// go through each element in state and count where people are at
 	int counters [2] = {0}; // {0: m on right, 1: c on right}
 	int i = 0;
 	for (; i < GROUP_SIZE; ++i)
-		counters[0]++;
+		if (node->binaryState[i] == 1)
+			counters[0]++;
 	for (; i < NUM_PEOPLE; ++i)
-		counters[1]++;
+		if (node->binaryState[i] == 1)
+			counters[1]++;
+
+	// printState(node->binaryState);
+	// cout << "Is left bank illegal? " << (GROUP_SIZE - counters[1] > GROUP_SIZE - counters[0] && GROUP_SIZE - counters[0] != 0) << ": " << GROUP_SIZE - counters[0] << " , " << GROUP_SIZE - counters[1] << endl;
+	// cout << "Is right bank illegal? " << (counters[1] > counters[0]  && counters[0] != 0) << ": " << counters[0] << " , " << counters[1] << endl;
 	
 	// illegal if more cannibals than missionaries on left river
-	if (GROUP_SIZE - counters[1] > GROUP_SIZE - counters[0])
+	if (GROUP_SIZE - counters[1] > GROUP_SIZE - counters[0] && (GROUP_SIZE - counters[0] != 0))
 		return true;
 
 	// illegal if more cannibals than missionaries on right river
-	if (counters[1] > counters[0])
+	if (counters[1] > counters[0] && counters[0] != 0)
 		return true;
 
 	return false;
 }
 
 // prototype because recursive function needs to know this exists
-void transferPeople(short unsigned int state[], int depth); 
+void transferPeople(struct node* parent); 
 
-int recursiveSearch(short unsigned int state[], int depth) {
-	if (!visited(state)) {
-		if (isFinalState(state)) {
-			// add solution with depth
-			cout << "Solution found at depth: " << depth << endl;
-			cachePath(state, cachedPaths.size());
-			return cachedPaths.size() - 1;
-		} else if (!isIllegalState(state)) { // continue searching
-			transferPeople(state, depth + 1);
-		}
+void recursiveSearch(struct node* currentNode) {
+	//vistedSearchSpace[currentNode->decimalState] = true;
+	if (isFinalState(currentNode)) {
+		solutionLeafNodes.push_back(currentNode);
+		// add solution with depth
+		cout << "Solution found at depth: " << currentNode->depth << endl;
+		//cachePath(state, cachedPaths.size());
+	} else if (!isIllegalState(currentNode)) { // continue searching
+		transferPeople(currentNode);
+	} else {
+		nonSolutionLeafNodes.push_back(currentNode);
 	}
-	return -1;
 }
 
-void transferPeople(short unsigned int previousState[], int depth) {
+void transferPeople(struct node* currentNode) {
 	// attempt as many boat passenger configurations as we can from the current state
 	for (int j = 0; j < NUM_PEOPLE; ++j) {
 		for (int p = 1; p <= BOAT_CAPACITY; ++p) {
 			int passengers = 0;
 			// create a new state
-			short unsigned int* stateCopy = deepStateCopy(previousState);
-			short unsigned int startingSideOfRiver = previousState[6];
+			short unsigned int* stateCopy = deepStateCopy(currentNode->binaryState);
+			short unsigned int startingSideOfRiver = stateCopy[6];
 			bool somethingChanged = false;
 			stateCopy[6] = 1 - startingSideOfRiver; // set oposite river starting point
 			for (int k = j; k < NUM_PEOPLE; ++k) {
-				if (previousState[k] == startingSideOfRiver) {
+				if (stateCopy[k] == startingSideOfRiver) {
 					// transfer person to oposite side
 					somethingChanged = true;
 					stateCopy[k] = 1 - startingSideOfRiver;
@@ -149,11 +208,14 @@ void transferPeople(short unsigned int previousState[], int depth) {
 						break;
 				}
 			}
+			// sometimes nothing changes, ignore it
 			if (somethingChanged) {
-				// send state to recursive search
-				int solutionId = recursiveSearch(stateCopy, depth);
-				if (solutionId > -1) {
-					cachePath(stateCopy, solutionId);
+				node* child = makeNode(currentNode, binaryToInt(stateCopy));
+				if (numberOfVisitsInBranch(child) < 1) {
+					if (!vistedSearchSpace[child->decimalState]) {
+						vistedSearchSpace[child->decimalState] = true;
+						recursiveSearch(child);
+					}
 				}
 			}
 		}
@@ -162,13 +224,16 @@ void transferPeople(short unsigned int previousState[], int depth) {
 
 int main()
 {
-	// Initialize the search space
-	short unsigned int startState[STATE_SIZE] = {0,0,0,0,0,0,0}; // 3 missionaries on left , 3 cannibals on left, boat on left
+	struct node* rootNode = makeNode(nullptr, 0);
 
-	recursiveSearch(startState, 0);
-	//transferPeople(startState, 0);
-	cout << cachedPaths[0].size() << endl;
-	//printSearchSpace(searchSpace);
+	recursiveSearch(rootNode);
+
+	for (int i = 0; i < solutionLeafNodes.size(); i++) {
+		solutionLeafNodes[i]->printAncestors();
+	}
+
+	cout << "Searched options: " << treeSize << endl;
+
 
 	return 0;
 }
