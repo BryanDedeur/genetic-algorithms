@@ -17,7 +17,7 @@ const int SEARCH_SPACE_SIZE = 128; 			// 2^7 = 128 possible states
 const int MAX_LOCATIONS = 2; 				// 2 locations, left river, right river
 const int GROUP_SIZE = 3; 					// 3 missionaries or 3 cannibals
 const int NUM_PEOPLE = 6;					// 3 missionaries and 3 cannibals
-const int BOAT_CAPACITY = 2; 				// 2 seats
+const int BOAT_CAPACITY = 3; 				// 2 seats
 const short unsigned int RIGHT_RIVER = 1;	// right river
 const short unsigned int LEFT_RIVER = 0;	// left river
 
@@ -182,12 +182,17 @@ void recursiveSearch(struct node* currentNode) {
 	//vistedSearchSpace[currentNode->decimalState] = true;
 	if (isFinalState(currentNode)) {
 		// add solution with depth
+		if (currentNode->depth < bestDepth) {
+			bestDepth = currentNode->depth;
+		}
 		vistedSearchSpace[currentNode->decimalState] = false;
 		solutionLeafNodes.push_back(currentNode);
 		//if (currentNode->depth < 13)
 		//cout << "Solution found at depth: " << currentNode->depth << endl;
 	} else if (!isIllegalState(currentNode)) { // continue searching
-		transferPeople(currentNode);
+		if (currentNode->depth + 1 < bestDepth) {
+			transferPeople(currentNode);
+		}
 	} else {
 		nonSolutionLeafNodes.push_back(currentNode);
 	}
@@ -218,7 +223,7 @@ void transferPeople(struct node* currentNode) {
 				node* child = makeNode(currentNode, binaryToInt(stateCopy));
 				if (numberOfVisitsInBranch(child) < 1) {
 					if (!vistedSearchSpace[child->decimalState]) {
-						vistedSearchSpace[child->decimalState] = true;
+						//vistedSearchSpace[child->decimalState] = true;
 						recursiveSearch(child);
 					}
 				}
@@ -243,7 +248,6 @@ int main()
 		}
 	}
 	cout << "Searched paths: " << nonSolutionLeafNodes.size() + solutionLeafNodes.size() << endl;
-	cout << "Solutions paths found: " << solutionLeafNodes.size() << endl;
 	cout << "Best Solution: depth " << bestSolution->depth << endl;
 
 	bestSolution->printSolution();
