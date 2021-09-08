@@ -88,11 +88,15 @@ struct node {
 	void print() {
 		printState(binaryState);
 	}
-	void printAncestors() {
+	void printSolution() {
+		vector<struct node*> solutionStates = vector<struct node*>();
 		node* current = this;
 		while(current != nullptr) {
-			current->print();
+			solutionStates.push_back(current);
 			current = current->parent;
+		}
+		for (int i = solutionStates.size() - 1; i >= 0; --i) {
+			solutionStates[i]->print();
 		}
 	}
 }; 
@@ -177,10 +181,11 @@ void transferPeople(struct node* parent);
 void recursiveSearch(struct node* currentNode) {
 	//vistedSearchSpace[currentNode->decimalState] = true;
 	if (isFinalState(currentNode)) {
-		solutionLeafNodes.push_back(currentNode);
 		// add solution with depth
-		cout << "Solution found at depth: " << currentNode->depth << endl;
-		//cachePath(state, cachedPaths.size());
+		vistedSearchSpace[currentNode->decimalState] = false;
+		solutionLeafNodes.push_back(currentNode);
+		//if (currentNode->depth < 13)
+		//cout << "Solution found at depth: " << currentNode->depth << endl;
 	} else if (!isIllegalState(currentNode)) { // continue searching
 		transferPeople(currentNode);
 	} else {
@@ -228,11 +233,22 @@ int main()
 
 	recursiveSearch(rootNode);
 
+	// find best solution and print it
+	int bestDepth = 9999999;
+	struct node* bestSolution = nullptr;
 	for (int i = 0; i < solutionLeafNodes.size(); i++) {
-		solutionLeafNodes[i]->printAncestors();
+		if (solutionLeafNodes[i]->depth < bestDepth) {
+			bestDepth = solutionLeafNodes[i]->depth;
+			bestSolution = solutionLeafNodes[i];
+		}
 	}
+	cout << "Searched paths: " << nonSolutionLeafNodes.size() + solutionLeafNodes.size() << endl;
+	cout << "Solutions paths found: " << solutionLeafNodes.size() << endl;
+	cout << "Best Solution: depth " << bestSolution->depth << endl;
 
-	cout << "Searched options: " << treeSize << endl;
+	bestSolution->printSolution();
+
+
 
 
 	return 0;
