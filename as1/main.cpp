@@ -1,5 +1,7 @@
 #include <iostream>
 #include <math.h>
+#include <chrono>
+
 using namespace std;
 
 const int MAX_LEN = 100;
@@ -17,18 +19,13 @@ const float STRING_TUNE_VALUE = 0.01f; // higher val = more exploration
 void init(int sol[], const int size) {
     for(int i = 0; i < size; ++i){
         sol[i] = rand() % 2; // should be random
-        // if (i < 85) {
-        //     sol[i] = 1;
-        // } else {
-        //     sol[i] = 0;
-        // }
     }
 }
 
-//double eval(int *pj);
+double eval(int *pj);
 
-float binToVal(int binary[], int size) {
-    float sum = 0;
+double binToVal(int binary[], int size) {
+    double sum = 0;
     for (int i = 0; i < size; ++i) {
         if (binary[i] == 1) {
             sum += 1;
@@ -46,7 +43,7 @@ double clamp(double val, double min, double max){
 }
 
 double eval(int sol[]) {
-    float x = binToVal(sol, 100);
+    double x = binToVal(sol, 100);
     return clamp(std::ceil(sin(x/6)*x + 15), 0, 100);
 }
 
@@ -72,7 +69,9 @@ void clone(int cloneMe[], int intoMe[], float bitChangeCounter[], const int size
     }
 }
 
-float runHillClimber(float *sumFitness, int *sumAttempts) {
+float runHillClimber(float *sumFitness, int *sumAttempts, double *timeElasped, int* tempString) {
+        auto start = chrono::steady_clock::now();
+
             // Hill climber
         srand(time(NULL));
 
@@ -104,29 +103,59 @@ float runHillClimber(float *sumFitness, int *sumAttempts) {
                 unsuccessfulAttempts++;
             }
         }
+        
+        auto end = chrono::steady_clock::now();
 
         //std::cout << "Final fitness: " << fitness_0 << std::endl;
         *sumFitness += fitness_0;
         *sumAttempts += attemptCount;
+        *timeElasped += chrono::duration_cast<chrono::milliseconds>(end - start).count();
+
+        for (int i = 0; i < MAX_LEN; ++i) {
+            tempString[i] = solution_0[i];
+        }
+
         return fitness_0;
+}
+
+string getString(int* someString, int length) {
+    string temp;
+    for (int i = 0; i < length; ++i) {
+        temp += std::to_string(someString[i]);
+    }
+    return temp;
 }
 
 int main()
 {
     float sumFitness = 0;
     int sumAttempts = 0;
+    double sumTime = 0;
+
     float bestFitness = 0;
     float tempFitness = 0;
+    int bestString[MAX_LEN] = {0};
+    int tempString[MAX_LEN] = {0};
+    
+    int successfulAttempts = 0;
     for (int i = 0; i < NUM_RUNS; ++i) {
-        tempFitness = runHillClimber(&sumFitness, &sumAttempts);
+        tempFitness = runHillClimber(&sumFitness, &sumAttempts, &sumTime, tempString);
+        if (tempFitness == 100) {
+            successfulAttempts++;
+        }
         if (tempFitness > bestFitness) {
             bestFitness = tempFitness;
+            for (int j = 0; j < MAX_LEN; ++j) {
+                bestString[j] = tempString[j];
+            }
         }
     }
 
-    cout << "Best fitness over " << NUM_RUNS << " runs: " << bestFitness << endl;
-    cout << "Average fitness over " << NUM_RUNS << " runs: " << sumFitness/NUM_RUNS << endl;
-    cout << "Average attempts over " << NUM_RUNS << " runs: " << sumAttempts/NUM_RUNS << endl;
+    cout << "average wall clock time taken: " << (sumTime/NUM_RUNS)/1000 << "s" << endl;
+    cout << "average number of attempts: " << sumAttempts/NUM_RUNS << endl;
+    cout << "best string: " << getString(bestString, MAX_LEN) <<endl;
+    cout << "reliability: " << successfulAttempts << "%" << endl;
+    cout << "quality: " << 100 + (sumFitness/NUM_RUNS - 100.0f) / ((sumFitness/NUM_RUNS + 100.0f) / 2.0f) * 100.0f << "%" << endl;
 
     return 0;
 }

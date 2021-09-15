@@ -1,19 +1,28 @@
 
-#include "math.h"
-#include "iostream"
+#include <iostream>
+using namespace std;
 
-long int binToInt(int binary[], int size) {
-    float sum = 0;
+double binToVal(int binary[], int size) {
+    double sum = 0;
     for (int i = 0; i < size; ++i) {
-        if (binary[i] == 1) {
-            sum += i / ;
-        } 
+        if (i % 4 == 0) {
+            if (1 - binary[i] == 1) {
+                sum += 1;
+            }
+        } else if (i % 2 == 0) {
+            if (binary[i] == 1) {
+                sum += 1;
+            }
+        } else {
+            if (binary[i] == 1) {
+                sum += 1;
+            }
+        }
     }
     return sum;
 }
 
 double eval(int sol[]) {
-    long int sum = binToInt(sol, 100);
-    std::cout << sum << std::endl;
-    return 0.0;
+    double x = binToVal(sol, 100);
+    return x;
 }
