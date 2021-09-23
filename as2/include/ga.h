@@ -1,25 +1,55 @@
 #ifndef GA_H_
 #define GA_H_
 
-#include <Population.h>
-#include <Options.h>
+#include "population.h"
+
+#include <string>
+#include <stdlib.h>
+#include <iostream>
+
+using namespace std;
 
 class GA {
-public:
-	GA(int argc, char *argv[]);
-	virtual ~GA();
+	public:
+		GA();
+		~GA();
 
-	//--------------------------------
-	Population *parent;
-	Population *child;
-	Options options;
+		bool Init(const unsigned int chromSize, const unsigned int popSize, const unsigned int numGens, const float probX, const float probM, int* seeds, const unsigned int numSeeds);
+		bool Init(const string settingsFile);
+		bool Init();
 
+		bool RunAllSeeds();
+		bool RunSeed(const int seed);
 
-	void SetupOptions(int argc, char*argv[]);
+	private:
+		string m_settingsFile;
+		string m_resultsFile;
 
-	void Init();
-	void Run();
-private:
+		Population* m_population; // holds the parents and the children
+
+		// ga settings
+		int m_chromSize;
+		int m_popSize;
+		int m_numGens;
+		float m_px;
+		float m_pm;
+
+		// seeds
+		int m_currentSeed;
+		int m_seedCounter;
+		int* m_seeds;
+		int m_numSeeds;
+
+		// statistics
+		double m_runTime;
+		double m_aveTimePerSeed;
+		double m_avefitnessPerSeed;
+		double m_stdDeviationFitnessPerSeed;
+		double m_aveConvergeGen;
+		double m_stdDeviationConvergeGenPerSeed;
+
+		Individual* m_bestIndividual;
+		Individual* m_worstIndividual;
 };
 
 #endif /* GA_H_ */

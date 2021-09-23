@@ -6,27 +6,28 @@
 class GA; // forward declaration
 
 class Population {
-public:
-	Population(GA* ga);
-	virtual ~Population();
-	//------------------------
+	public:
+		Population(GA* ga);
+		~Population();
 
-	Options options;
-	Individual *members[MAXPOP];
-	double avg, min, max, sumFitness;
+		bool Init();
 
 
-	void Init();
-	void Evaluate();
-	void Generation(Population *child);
-	void Report(unsigned long int gen);
-	void Statistics();
+		Individual *members[100];
+		double avg, min, max, sumFitness;
 
-	int ProportionalSelector();
-	void XoverAndMutate(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
-	void TwoPoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
-	void OnePoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
+		void Evaluate();
+		void Generation(Population *child);
+		void Report(unsigned long int gen);
+		void Statistics();
 
+		int ProportionalSelector();
+		void XoverAndMutate(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
+		void TwoPoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
+		void OnePoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
+
+	private:
+		GA* m_ga;
 };
 
 #endif /* POPULATION_H_ */

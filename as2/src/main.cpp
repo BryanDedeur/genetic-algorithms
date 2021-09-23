@@ -1,12 +1,18 @@
-#include <iostream>
+
 #include <ga.h>
 
 using namespace std;
 
 int main() {
-	GA ga = GA(argc, argv);
 
-	ga.Init();
-	ga.Run();
+	GA ga = GA();
+	if (!ga.Init())
+		return 1;
+
+	if (!ga.RunAllSeeds())
+		return 1;
+
+	// ga.Init();
+	// ga.Run();
     return 0;
 }
