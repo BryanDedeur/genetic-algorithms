@@ -3,18 +3,26 @@
 
 class GA; // forward declaration
 
+#define RAND_FRAC_PREC 10000
+
 class Individual {
+	friend class Population;
 	public:
-		Individual(GA* ga);
+		Individual();
 		~Individual();
 
 		bool Init();
-		void Mutate(double pm);
+		double Evaluate();
+
+		bool BitFlip(int pos, double probability);
+		void BitFlip(double probability);
 
 	private:
+		float RandFrac();
+
 		GA* m_ga;
 		double m_fitness;
-		int chromosome[1];
+		bool* m_chromosome;
 };
 
 #endif /* INDIVIDUAL_H_ */

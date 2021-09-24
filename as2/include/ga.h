@@ -2,6 +2,7 @@
 #define GA_H_
 
 #include "population.h"
+#include "evaluator.h"
 
 #include <string>
 #include <stdlib.h>
@@ -10,8 +11,10 @@
 using namespace std;
 
 class GA {
+	friend class Population;
+	friend class Individual;
 	public:
-		GA();
+		GA(Evaluator* eval);
 		~GA();
 
 		bool Init(const unsigned int chromSize, const unsigned int popSize, const unsigned int numGens, const float probX, const float probM, int* seeds, const unsigned int numSeeds);
@@ -26,6 +29,7 @@ class GA {
 		string m_resultsFile;
 
 		Population* m_population; // holds the parents and the children
+		Evaluator* m_evaluator;
 
 		// ga settings
 		int m_chromSize;
