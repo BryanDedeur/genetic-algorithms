@@ -3,9 +3,9 @@
 
 Population::Population(GA* ga) {
 	m_ga = ga;
-	m_numMembers = m_ga->m_popSize * 2;
-	m_numAncestors = m_ga->m_popSize;
-	m_members = new Individual[m_numMembers];
+	m_numMembers = 0;
+	m_numAncestors = 0;
+	m_members = nullptr;
 	m_sumFitness = 0;
 	m_minFitness = INFINITY;
 	m_maxFitness = -INFINITY;
@@ -23,8 +23,12 @@ bool Population::Init() {
 	m_maxFitness = -INFINITY;
 	m_aveFitness = 0;
 
+	m_numMembers = m_ga->m_popSize * 2;
+	m_numAncestors = m_ga->m_popSize;
+	m_members = new Individual[m_numMembers];
+
 	// evaluate the entire population
-	for (int i = 0; i < m_numAncestors; ++i) {
+	for (int i = 0; i < m_numMembers; ++i) {
 		m_members[i].m_ga = m_ga;
 		m_members[i].Init();
 		m_members[i].Evaluate();
@@ -85,19 +89,34 @@ bool Population::Evaluate() {
 // 	// }
 // }
 
+void Population::IncrementChildrenIndicies(int startIndex) {
+	m_child1 = startIndex + m_numAncestors;
+	m_child2 = m_child1 + 1;
+}
 
+void Population::MakeChildrenFromSelected() {
+	for(int i = 0; i < m_ga->m_chromSize; i++) {
+		m_members[m_child1].m_chromosome[i] = m_members[m_selected2].m_chromosome[i];
+		m_members[m_child2].m_chromosome[i] = m_members[m_selected1].m_chromosome[i];
+	}
+}
 
-// int Population::ProportionalSelector(){
-// 	int i = -1;
-// 	// float sum = 0;
-// 	// float limit = RandomFraction() * sumFitness;
-// 	// do {
-// 	// 	i = i + 1;
-// 	// 	sum += members[i]->fitness;
-// 	// } while (sum < limit && i < options.popSize-1 );
-
-// 	return i;
-// }
+void Population::SelectProportional() {
+	// select two parents
+	for (int j = 0; j < 2; ++j) {
+		int i = 0;
+		float sum = 0;
+		float limit = m_ga->RandFrac() * m_sumFitness;
+		do {
+			sum += m_members[i].m_fitness;
+			i++;
+		} while (sum < limit && i < m_numAncestors - 1);
+		if (j == 0)
+			m_selected1 = i;
+		else 
+			m_selected2 = i;
+	}
+}
 
 // void Population::XoverAndMutate(Individual *p1, Individual *p2, Individual *c1, Individual *c2){
 
@@ -113,13 +132,25 @@ bool Population::Evaluate() {
 // 	// c2->Mutate(options.pm);
 // }
 
-// void Population::OnePoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2){ //not debugged
-// 	// int t1 = IntInRange(0, options.chromLength);
-// 	// for(int i = t1; i < options.chromLength; i++){
-// 	// 	c1->chromosome[i] = p2->chromosome[i];
-// 	// 	c2->chromosome[i] = p1->chromosome[i];
-// 	// }
-// }
+void Population::CrossoverOnePoint() {
+	if (m_ga->RandFrac() < m_ga->m_px) { 
+		int point = m_ga->RandFrac() * (m_ga->m_chromSize - 1);
+		for(int i = point; i < m_ga->m_chromSize; i++) {
+			m_members[m_child1].m_chromosome[i] = m_members[m_selected2].m_chromosome[i];
+			m_members[m_child2].m_chromosome[i] = m_members[m_selected1].m_chromosome[i];
+		}
+	}
+}
+
+void Population::Mutate() {
+	for (int i = m_numAncestors; i < m_numMembers; ++i) {
+		for (int j = 0; j < m_ga->m_chromSize; ++j) {
+			if (m_ga->RandFrac() < m_ga->m_pm) {
+				m_members[i].m_chromosome[j] = 1 - m_members[i].m_chromosome[j];
+			}
+		}
+	}
+}
 
 // void Population::TwoPoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2){ //not debugged
 // 	// int t1 = IntInRange(0, options.chromLength);

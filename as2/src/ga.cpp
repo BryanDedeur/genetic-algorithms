@@ -32,10 +32,18 @@ bool GA::Init(const unsigned int chromSize, const unsigned int popSize, const un
 	}
 	m_popSize = popSize;
 	m_numGens = numGens;
+	if (probX < 1 / RAND_FRAC_PREC || probM < 1 / RAND_FRAC_PREC) {
+		cout << "Increase random fraction precision" << endl;
+		return false;
+	}
 	m_px = probX;
 	m_pm = probM;
 	m_numSeeds = numSeeds;
+	m_seeds = new int[numSeeds];
 	m_seeds = seeds;
+	// for (int i = 0; i < numSeeds; ++i) {
+	// 	m_seeds[i] = seeds[i];
+	// }
 
 	m_population = new Population(this);
 	if (!m_population->Init())
@@ -63,9 +71,12 @@ bool GA::Init(const string settingsFile) {
 
 bool GA::Init() {
 	// inject some default settings
-	int* seeds = new int[1];
-	seeds[0] = 0;
-	return Init(4, 4, 20, 0.7, 0.01, seeds, 1);
+	int numSeeds = 30;
+	int* seeds = new int[numSeeds];
+	for (int i = 0; i < numSeeds; i++) {
+		seeds[i] = (i * 1000)/numSeeds;
+	}
+	return Init(4, 4, 20, 0.7, 0.01, seeds, numSeeds);
 }
 
 bool GA::RunAllSeeds() {
@@ -78,6 +89,7 @@ bool GA::RunAllSeeds() {
 
 bool GA::RunSeed(const int seed) {
 	// Set the new seed
+	cout << "running on seed: " << seed << endl;
 	m_currentSeed = seed;
 	m_seedCounter++;
 	srand(m_currentSeed);
@@ -87,10 +99,23 @@ bool GA::RunSeed(const int seed) {
 		return false;
 	
 	for(int i = 1; i < m_numGens; ++i) {
-		// Select
-		// Crossover
-		// Mutate
-		// Evaluate
+		for(int i = 0; i < m_popSize; i += 2) {
+			// Select
+			m_population->IncrementChildrenIndicies(i);
+			m_population->SelectProportional();
+
+			// Breed
+			m_population->MakeChildrenFromSelected();
+
+			// Crossover
+			m_population->CrossoverOnePoint();
+
+			// Mutate
+			m_population->Mutate();
+
+			// Evaluate
+			m_population->Evaluate();
+		}
 
 		// 	parent->Generation(child);
 		// 	child->Evaluate();
@@ -102,4 +127,8 @@ bool GA::RunSeed(const int seed) {
 		// 	child = tmp;
 	}
 	return true;
+}
+
+float GA::RandFrac() {
+	return ((float) (rand() % RAND_FRAC_PREC)) / (float) RAND_FRAC_PREC;
 }

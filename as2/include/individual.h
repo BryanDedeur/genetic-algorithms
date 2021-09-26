@@ -3,8 +3,6 @@
 
 class GA; // forward declaration
 
-#define RAND_FRAC_PREC 10000
-
 class Individual {
 	friend class Population;
 	public:

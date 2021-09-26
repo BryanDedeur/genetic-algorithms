@@ -10,6 +10,8 @@
 
 using namespace std;
 
+#define RAND_FRAC_PREC 1000000
+
 class GA {
 	friend class Population;
 	friend class Individual;
@@ -24,7 +26,9 @@ class GA {
 		bool RunAllSeeds();
 		bool RunSeed(const int seed);
 
+		float RandFrac();
 	private:
+	
 		string m_settingsFile;
 		string m_resultsFile;
 

@@ -20,8 +20,12 @@ bool Individual::Init() {
 	// create the chromosome and randomly initialize it
 	m_chromosome = new bool[m_ga->m_chromSize];
 	for(int i = 0; i < m_ga->m_chromSize; ++i) {
-		if(!BitFlip(i, 0.5f))
-			return false;
+		// randomize
+		if(m_ga->RandFrac() < 0.5)
+			m_chromosome[i] = 1;
+		else
+			m_chromosome[i] = 0;
+			
 	}
 	return true;
 }
@@ -37,20 +41,16 @@ bool Individual::BitFlip(int pos, double probability) {
 		return false;
 	}
 
-	if (RandFrac() < probability)
+	if (m_ga->RandFrac() < probability)
 		m_chromosome[pos] = 1 - m_chromosome[pos];
 
 	return true;
 }
 
 // flips any bit in the chromosome with a probability
-void Individual::BitFlip(double probability) {
-	BitFlip(rand() % m_ga->m_chromSize, probability);
-}
-
-float Individual::RandFrac() {
-	return (rand() % RAND_FRAC_PREC) / RAND_FRAC_PREC;
-}
+// void Individual::BitFlip(double probability) {
+// 	BitFlip(rand() % m_ga->m_chromSize, probability);
+// }
 
 
 // void Individual::Mutate(double pm){
