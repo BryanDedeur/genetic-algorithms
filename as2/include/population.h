@@ -2,6 +2,8 @@
 #define POPULATION_H_
 
 #include "individual.h"
+#include <ostream>
+using namespace std;
 
 class GA; // forward declaration
 
@@ -12,14 +14,14 @@ class Population {
 		~Population();
 
 		bool Init();
-		bool Evaluate();
+		void Randomize();
 
 		// void Generation(Population *child);
 		// void Report(unsigned long int gen);
 		// void Statistics();
+		void ResetStats();
 
-		void IncrementChildrenIndicies(int startIndex);
-		void MakeChildrenFromSelected();
+		void CloneChildrenFromSelected(const Population* childPopulation, const int& child1, const int& child2);
 
 		// Selection
 		void SelectProportional();
@@ -27,34 +29,31 @@ class Population {
 		// Crossovers
 		// void XoverAndMutate(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
 		// void TwoPoint(Individual *p1, Individual *p2, Individual *c1, Individual *c2);
-		void CrossoverOnePoint();
+		void CrossoverOnePoint(const int& child1, const int& child2);
 
 		// Mutators
-		void Mutate();
-
+		void Mutate(const int& child1, const int& child2);
 
 		// Evaluate
+		void Evaluate(const int& child1, const int& child2);
 
+		// operator overloading
+		friend ostream& operator<<(ostream& os, const Population& pop);
+		Individual m_best;
 
 	private:
 		GA* m_ga;
 
 		Individual *m_members;
-		int m_numMembers; // 2x pop size
-		int m_numAncestors; // 1x pop size
+		int m_totalMembers;
 
 		int m_selected1;
 		int m_selected2;
-		int m_child1;
-		int m_child2;
 
 		// statistics
 		double m_minFitness;
 		double m_maxFitness;
 		double m_sumFitness;
-		double m_aveFitness;
-
-
 };
 
 #endif /* POPULATION_H_ */

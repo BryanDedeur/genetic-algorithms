@@ -32,7 +32,8 @@ class GA {
 		string m_settingsFile;
 		string m_resultsFile;
 
-		Population* m_population; // holds the parents and the children
+		Population* m_parents;
+		Population* m_children;
 		Evaluator* m_evaluator;
 
 		// ga settings
@@ -56,8 +57,8 @@ class GA {
 		double m_aveConvergeGen;
 		double m_stdDeviationConvergeGenPerSeed;
 
-		Individual* m_bestIndividual;
-		Individual* m_worstIndividual;
+		Individual m_bestIndividual;
+		Individual m_worstIndividual;
 };
 
 #endif /* GA_H_ */

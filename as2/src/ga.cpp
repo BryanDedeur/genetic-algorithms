@@ -3,7 +3,8 @@
 GA::GA(Evaluator* eval) {
 	m_settingsFile = "";
 	m_resultsFile = "";
-	m_population = nullptr;
+	m_parents = nullptr;
+	m_children = nullptr;
 	m_evaluator = eval;
 	m_chromSize = 0;
 	m_popSize = 0;
@@ -16,7 +17,8 @@ GA::GA(Evaluator* eval) {
 	m_numSeeds = 0;
 	m_runTime = 0;
 	m_aveTimePerSeed = 0;
-	m_bestIndividual = 0;
+	m_bestIndividual = Individual();
+	m_worstIndividual = Individual();
 	m_avefitnessPerSeed = 0;
 }
 
@@ -41,12 +43,13 @@ bool GA::Init(const unsigned int chromSize, const unsigned int popSize, const un
 	m_numSeeds = numSeeds;
 	m_seeds = new int[numSeeds];
 	m_seeds = seeds;
-	// for (int i = 0; i < numSeeds; ++i) {
-	// 	m_seeds[i] = seeds[i];
-	// }
 
-	m_population = new Population(this);
-	if (!m_population->Init())
+	m_parents = new Population(this);
+	if (!m_parents->Init())
+		return false;
+
+	m_children = new Population(this);
+	if (!m_children->Init())
 		return false;
 
 	if (m_evaluator == nullptr) {
@@ -76,7 +79,7 @@ bool GA::Init() {
 	for (int i = 0; i < numSeeds; i++) {
 		seeds[i] = (i * 1000)/numSeeds;
 	}
-	return Init(4, 4, 20, 0.7, 0.01, seeds, numSeeds);
+	return Init(10, 50, 100, 0.7, 0.1, seeds, 1);
 }
 
 bool GA::RunAllSeeds() {
@@ -89,43 +92,47 @@ bool GA::RunAllSeeds() {
 
 bool GA::RunSeed(const int seed) {
 	// Set the new seed
-	cout << "running on seed: " << seed << endl;
 	m_currentSeed = seed;
 	m_seedCounter++;
 	srand(m_currentSeed);
 
-	// Initialize
-	if (!m_population->Init())
-		return false;
+	cout << "running on seed (" << seed << "): " << m_seedCounter << "/" << m_numSeeds << endl;
+
+	// Randomize
+	m_parents->Randomize();
 	
-	for(int i = 1; i < m_numGens; ++i) {
+	for(int g = 0; g < m_numGens; ++g) {
+		cout << *m_parents << endl;
 		for(int i = 0; i < m_popSize; i += 2) {
 			// Select
-			m_population->IncrementChildrenIndicies(i);
-			m_population->SelectProportional();
+			m_parents->SelectProportional();
 
 			// Breed
-			m_population->MakeChildrenFromSelected();
+			m_parents->CloneChildrenFromSelected(m_children, i, i + 1);
 
 			// Crossover
-			m_population->CrossoverOnePoint();
+			m_children->CrossoverOnePoint(i, i + 1);
 
 			// Mutate
-			m_population->Mutate();
+			m_children->Mutate(i, i + 1);
 
 			// Evaluate
-			m_population->Evaluate();
+			m_children->Evaluate(i, i + 1);
 		}
 
-		// 	parent->Generation(child);
-		// 	child->Evaluate();
-		// 	child->Statistics();
-		// 	child->Report(i);
+		// Record Statistics
+		if (m_bestIndividual < m_children->m_best) 
+			m_bestIndividual = m_children->m_best;
 
-		// 	Population *tmp = parent;
-		// 	parent = child;
-		// 	child = tmp;
+		// Children become parents
+		Population* temp = m_parents;
+		m_parents = m_children;
+		m_children = temp;
+
+		m_children->ResetStats();
 	}
+
+	cout << "Best found is: " << m_bestIndividual << endl;
 	return true;
 }
 
