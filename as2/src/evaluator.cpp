@@ -1,4 +1,5 @@
 #include "evaluator.h"
+#include <iostream>
 
 Evaluator::Evaluator() {
 
@@ -16,5 +17,6 @@ double Evaluator::Evaluate(bool* binaryData, int length) {
 	for(int i = 0; i < length; i++){
 		sum += (binaryData[i] == 1 ? 1: 0);
 	}
+	//std::cout << "Decoded value: " << sum << std::endl;
 	return sum;
 }

@@ -97,12 +97,17 @@ void Population::CloneChildrenFromSelected(const Population* childPopulation, co
 
 void Population::SelectProportional() {
 	// select two parents
+	cout << "Sum Fitness: " << m_sumFitness << endl;
 	for (int j = 0; j < 2; ++j) {
 		int i = -1;
 		float sum = 0;
 		float limit = m_ga->RandFrac() * m_sumFitness;
+		cout << "Limit: " << limit << endl;
 		do {
 			sum += m_members[i].m_fitness;
+			cout << "Individual fitness in selector: " << m_members[i].m_fitness << endl;
+			cout << "Sum: " << sum << endl;
+
 			i++;
 		} while (sum < limit && i < m_ga->m_popSize - 1);
 		if (j == 0)
@@ -110,6 +115,8 @@ void Population::SelectProportional() {
 		else 
 			m_selected2 = i;
 	}
+	cout << "Selected: " << m_selected1 << " " << m_selected2 << endl;
+
 }
 
 // void Population::XoverAndMutate(Individual *p1, Individual *p2, Individual *c1, Individual *c2){
@@ -186,6 +193,9 @@ void Population::Evaluate(const int& child1, const int& child2) {
 // }
 
 ostream& operator<<(ostream& os, const Population& population) {
-    os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness;
+    os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness << endl;
+	for (int i = 0; i < population.m_totalMembers; ++i) {
+		os << i << population.m_members[i] << endl;
+	}
     return os;
 }

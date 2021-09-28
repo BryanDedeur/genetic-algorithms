@@ -79,7 +79,7 @@ bool GA::Init() {
 	for (int i = 0; i < numSeeds; i++) {
 		seeds[i] = (i * 1000)/numSeeds;
 	}
-	return Init(10, 50, 100, 0.7, 0.1, seeds, 1);
+	return Init(20, 10, 20, 0.7, 0.1, seeds, 1);
 }
 
 bool GA::RunAllSeeds() {
