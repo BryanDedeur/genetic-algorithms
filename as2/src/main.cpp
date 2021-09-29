@@ -15,7 +15,7 @@ int main() {
 	if (!ga.RunAllSeeds())
 		return 1;
 
-	// ga.Init();
-	// ga.Run();
+	ga.SaveResults();
+
     return 0;
 }

@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <random>
-
+#include <fstream>
 
 using namespace std;
 
@@ -26,7 +26,12 @@ class GA {
 		bool RunAllSeeds();
 		bool RunSeed(const int seed);
 
+		void GatherStats(int gen);
+
+		void SaveResults();
+
 		float RandFrac();
+		int IntInRange(const int& low, const int& high);
 	private:
 	
 		string m_settingsFile;
@@ -50,6 +55,11 @@ class GA {
 		int m_numSeeds;
 
 		// statistics
+		double* m_sumMinFitnessPerGeneration;
+		double* m_sumAveFitnessPerGeneration;
+		double* m_sumMaxFitnessPerGeneration;
+		//double* m_sumObjectiveFunctionValuePerGeneration;
+
 		double m_runTime;
 		double m_aveTimePerSeed;
 		double m_avefitnessPerSeed;

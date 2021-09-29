@@ -41,6 +41,11 @@ class Population {
 		friend ostream& operator<<(ostream& os, const Population& pop);
 		Individual m_best;
 
+		// statistics
+		double m_minFitness;
+		double m_maxFitness;
+		double m_sumFitness;
+
 	private:
 		GA* m_ga;
 
@@ -50,10 +55,7 @@ class Population {
 		int m_selected1;
 		int m_selected2;
 
-		// statistics
-		double m_minFitness;
-		double m_maxFitness;
-		double m_sumFitness;
+
 };
 
 #endif /* POPULATION_H_ */
