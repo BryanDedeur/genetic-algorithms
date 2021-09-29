@@ -13,6 +13,8 @@ Population::Population(GA* ga) {
 
 Population::~Population() {
 	// TODO Auto-generated destructor stub
+	delete[] m_members;
+	m_ga = nullptr;
 }
 
 bool Population::Init() {
@@ -97,25 +99,21 @@ void Population::CloneChildrenFromSelected(const Population* childPopulation, co
 
 void Population::SelectProportional() {
 	// select two parents
-	cout << "Sum Fitness: " << m_sumFitness << endl;
 	for (int j = 0; j < 2; ++j) {
 		int i = -1;
 		float sum = 0;
 		float limit = m_ga->RandFrac() * m_sumFitness;
-		cout << "Limit: " << limit << endl;
 		do {
-			sum += m_members[i].m_fitness;
-			cout << "Individual fitness in selector: " << m_members[i].m_fitness << endl;
-			cout << "Sum: " << sum << endl;
-
 			i++;
+			sum += m_members[i].m_fitness;
 		} while (sum < limit && i < m_ga->m_popSize - 1);
+		//cout << "Limit: " << limit << " Sum: " << sum << endl;
 		if (j == 0)
 			m_selected1 = i;
 		else 
 			m_selected2 = i;
 	}
-	cout << "Selected: " << m_selected1 << " " << m_selected2 << endl;
+	//cout << "Selected: " << m_selected1 << " " << m_selected2 << endl;
 
 }
 
@@ -138,6 +136,7 @@ void Population::CrossoverOnePoint(const int& child1, const int& child2) {
 	if (m_ga->RandFrac() < m_ga->m_px) { 
 		// pick a point excluding the first. If we include the first we clone the chrome
 		int point = (m_ga->RandFrac() * (m_ga->m_chromSize - 1)) + 1;
+		//cout << "Crossover point: " << point << endl;
 		bool temp = 0;
 		for(int i = point; i < m_ga->m_chromSize; i++) {
 			temp = m_members[child1].m_chromosome[i];
@@ -193,9 +192,9 @@ void Population::Evaluate(const int& child1, const int& child2) {
 // }
 
 ostream& operator<<(ostream& os, const Population& population) {
-    os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness << endl;
+    os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness;
 	for (int i = 0; i < population.m_totalMembers; ++i) {
-		os << i << population.m_members[i] << endl;
+		//os << i << population.m_members[i] << endl;
 	}
     return os;
 }

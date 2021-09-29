@@ -7,10 +7,10 @@
 #include <string>
 #include <stdlib.h>
 #include <iostream>
+#include <random>
+
 
 using namespace std;
-
-#define RAND_FRAC_PREC 1000000
 
 class GA {
 	friend class Population;

@@ -24,6 +24,9 @@ GA::GA(Evaluator* eval) {
 
 GA::~GA() {
 	// TODO Auto-generated destructor stub
+	delete[] m_seeds;
+	delete m_parents;
+	delete m_children;
 }
 
 bool GA::Init(const unsigned int chromSize, const unsigned int popSize, const unsigned int numGens, const float probX, const float probM, int* seeds, const unsigned int numSeeds) {
@@ -34,10 +37,6 @@ bool GA::Init(const unsigned int chromSize, const unsigned int popSize, const un
 	}
 	m_popSize = popSize;
 	m_numGens = numGens;
-	if (probX < 1 / RAND_FRAC_PREC || probM < 1 / RAND_FRAC_PREC) {
-		cout << "Increase random fraction precision" << endl;
-		return false;
-	}
 	m_px = probX;
 	m_pm = probM;
 	m_numSeeds = numSeeds;
@@ -79,7 +78,8 @@ bool GA::Init() {
 	for (int i = 0; i < numSeeds; i++) {
 		seeds[i] = (i * 1000)/numSeeds;
 	}
-	return Init(20, 10, 20, 0.7, 0.1, seeds, 1);
+	int chromSize = 100;
+	return Init(chromSize, 350, 350, 0.7f, 1.0f/(chromSize * 10), seeds, numSeeds);
 }
 
 bool GA::RunAllSeeds() {
@@ -102,7 +102,8 @@ bool GA::RunSeed(const int seed) {
 	m_parents->Randomize();
 	
 	for(int g = 0; g < m_numGens; ++g) {
-		cout << *m_parents << endl;
+		//cout << "PARENTS: " << endl;
+		//cout << *m_parents << endl;
 		for(int i = 0; i < m_popSize; i += 2) {
 			// Select
 			m_parents->SelectProportional();
@@ -119,6 +120,9 @@ bool GA::RunSeed(const int seed) {
 			// Evaluate
 			m_children->Evaluate(i, i + 1);
 		}
+		//cout << "CHILDREN: " << endl;
+		//cout << *m_children << endl;
+
 
 		// Record Statistics
 		if (m_bestIndividual < m_children->m_best) 
@@ -137,5 +141,5 @@ bool GA::RunSeed(const int seed) {
 }
 
 float GA::RandFrac() {
-	return ((float) (rand() % RAND_FRAC_PREC)) / (float) RAND_FRAC_PREC;
+	return (float) rand() / (float) RAND_MAX;
 }

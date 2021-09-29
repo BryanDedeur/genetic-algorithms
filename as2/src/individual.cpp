@@ -10,6 +10,8 @@ Individual::Individual() {
 
 Individual::~Individual() {
 	// TODO Auto-generated destructor stub
+	delete[] m_chromosome;
+	m_ga = nullptr;
 }
 
 bool Individual::Init() {
@@ -29,7 +31,8 @@ bool Individual::Init() {
 void Individual::Randomize() {
 	// randomize each bit
 	for(int i = 0; i < m_chromLength; ++i) {
-		if(m_ga->RandFrac() < 0.5)
+		float frac = m_ga->RandFrac();
+		if(frac < 0.5f)
 			m_chromosome[i] = 1;
 		else
 			m_chromosome[i] = 0;
