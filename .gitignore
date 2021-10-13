@@ -1,5 +1,6 @@
-*/.vs
-*/build
-*/.vscode
-*/out
+*\.vs
+*\build
+*\.vscode
+*\out
 
+*\cmake-build-debug
