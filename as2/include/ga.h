@@ -9,6 +9,7 @@
 #include <iostream>
 #include <random>
 #include <fstream>
+#include <chrono>
 
 using namespace std;
 
@@ -26,11 +27,11 @@ class GA {
 		bool RunAllSeeds();
 		bool RunSeed(const int seed);
 
-		void GatherStats(int gen);
+		void GatherGenerationStats(int gen);
 
 		void SaveResults();
 
-		float RandFrac();
+		double RandFrac();
 		int IntInRange(const int& low, const int& high);
 	private:
 	

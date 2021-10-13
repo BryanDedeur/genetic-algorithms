@@ -2,8 +2,11 @@
   "ExpandedNodes": [
     "",
     "\\include",
+    "\\out",
+    "\\out\\build",
+    "\\out\\build\\x64-Debug",
     "\\src"
   ],
-  "SelectedNode": "\\src\\evaluator.cpp",
+  "SelectedNode": "\\out\\build\\x64-Debug\\fitnessResults.txt",
   "PreviewInSolutionExplorer": false
 }

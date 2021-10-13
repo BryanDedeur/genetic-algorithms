@@ -89,12 +89,40 @@ bool GA::Init() {
 	// inject some default settings
 	int numSeeds = 30;
 	int* seeds = new int[numSeeds];
-	for (int i = 0; i < numSeeds; i++)
-		seeds[i] = (i * 1000)/numSeeds;
+	seeds[0] = 352354;
+	seeds[1] = 23545;
+	seeds[2] = 78905;
+	seeds[3] = 1245;
+	seeds[4] = 61989;
+	seeds[5] = 252345;
+	seeds[6] = 642880;
+	seeds[7] = 374628;
+	seeds[8] = 214156;
+	seeds[9] = 97645;
+	seeds[10] = 173567;
+	seeds[11] = 904456;
+	seeds[12] = 236346;
+	seeds[13] = 645876;
+	seeds[14] = 345644;
+	seeds[15] = 278934;
+	seeds[16] = 12543567;
+	seeds[17] = 134236;
+	seeds[18] = 754734;
+	seeds[19] = 946454;
+	seeds[20] = 756433;
+	seeds[21] = 3456223;
+	seeds[22] = 324575;
+	seeds[23] = 2358754;
+	seeds[24] = 753455;
+	seeds[25] = 7343456;
+	seeds[26] = 978977;
+	seeds[27] = 999875;
+	seeds[28] = 3345345;
+	seeds[29] = 23532451;
 	
 	int chromSize = m_evaluator->GetEncodedBitLength();
-	int popSize = 400;
-	return Init(chromSize, popSize, popSize, 0.6f, 1.0f/(chromSize * 100), seeds, numSeeds);
+	int popSize = 6;
+	return Init(chromSize, popSize, popSize * 2, 0.7, .0001, seeds, numSeeds);
 }
 
 bool GA::RunAllSeeds() {
@@ -110,17 +138,17 @@ void GA::SaveResults() {
 	myfile.open("fitnessResults.txt");
 	for (int i = 0; i < m_numGens; ++i) {
 		myfile << i << " "
-			<< m_sumMinFitnessPerGeneration[i] << " "
-			<< m_sumAveFitnessPerGeneration[i] << " "
-			<< m_sumMaxFitnessPerGeneration[i] << endl;
+			<< m_sumMinFitnessPerGeneration[i] / m_numSeeds << " "
+			<< m_sumAveFitnessPerGeneration[i] / m_numSeeds << " "
+			<< m_sumMaxFitnessPerGeneration[i] / m_numSeeds << endl;
 	}
 	myfile.close();
 }
 
-void GA::GatherStats(int generation) {
-	m_sumMinFitnessPerGeneration[generation] += m_parents->m_minFitness / m_popSize;
-	m_sumAveFitnessPerGeneration[generation] += m_parents->m_sumFitness / m_popSize;
-	m_sumMaxFitnessPerGeneration[generation] += m_parents->m_maxFitness / m_popSize;
+void GA::GatherGenerationStats(int generation) {
+	m_sumMinFitnessPerGeneration[generation] += m_parents->m_minFitness;
+	m_sumAveFitnessPerGeneration[generation] += m_parents->m_sumFitness / m_popSize; // convert it to ave fitness
+	m_sumMaxFitnessPerGeneration[generation] += m_parents->m_maxFitness;
 }
 
 bool GA::RunSeed(const int seed) {
@@ -133,9 +161,10 @@ bool GA::RunSeed(const int seed) {
 
 	// Randomize
 	m_parents->Randomize();
+	cout << *m_parents << endl;
 	
 	for(int g = 0; g < m_numGens; ++g) {
-		GatherStats(g);
+		GatherGenerationStats(g);
 		for(int i = 0; i < m_popSize; i += 2) {
 			// Select
 			m_parents->SelectProportional();
@@ -168,8 +197,8 @@ bool GA::RunSeed(const int seed) {
 	return true;
 }
 
-float GA::RandFrac() {
-	return (float) rand() / (float) RAND_MAX;
+double GA::RandFrac() {
+	return (double) rand() / (double) RAND_MAX;
 }
 
 int GA::IntInRange(const int& low, const int& high) {

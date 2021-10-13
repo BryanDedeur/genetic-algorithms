@@ -9,11 +9,13 @@ Population::Population(GA* ga) {
 	m_minFitness = INFINITY;
 	m_maxFitness = -INFINITY;
 	m_best = Individual();
+	m_selectionCounts = nullptr;
 }
 
 Population::~Population() {
 	// TODO Auto-generated destructor stub
 	delete[] m_members;
+	delete[] m_selectionCounts;
 	m_ga = nullptr;
 }
 
@@ -26,10 +28,13 @@ bool Population::Init() {
 	// make sure the individuals exist and are initialized
 	m_totalMembers = m_ga->m_popSize;
 	m_members = new Individual[m_totalMembers];
+	m_selectionCounts = new int[m_totalMembers];
 	for (int i = 0; i < m_totalMembers; ++i) {
 		m_members[i].m_ga = m_ga;
 		m_members[i].Init(); 
+		m_selectionCounts[i] = 0;
 	}
+
 
 	return true;
 }
@@ -55,10 +60,14 @@ void Population::Randomize() {
 
 void Population::ResetStats() {
 	// reset statistics
+	//cout << *this << endl;
 	m_sumFitness = 0;
 	m_minFitness = INFINITY;
 	m_maxFitness = -INFINITY;
 	m_best.m_fitness = 0;
+	for (int i = 0; i < m_totalMembers; ++i) {
+		m_selectionCounts[i] = 0;
+	}
 }
 
 void Population::CloneChildrenFromSelected(const Population* childPopulation, const int& child1, const int& child2) {
@@ -82,31 +91,73 @@ void Population::SelectProportional() {
 		else 
 			m_selected2 = i;
 	}
+	m_selectionCounts[m_selected1]++;
+	m_selectionCounts[m_selected2]++;
 }
 
+// This works!
 void Population::CrossoverOnePoint(const int& child1, const int& child2) {
 	// by this point the children are direct copies of the parents
+
 	if (m_ga->RandFrac() < m_ga->m_px) { 
+
 		// pick a point greater than or equal to low and strictly less than high
-		int point = m_ga->IntInRange(0, m_ga->m_chromSize);
+		int point = m_ga->IntInRange(1, m_ga->m_chromSize);
+
+		//cout << "Crossover:" << endl;
+		//cout << "Before1: ";
+		//for (int i = 0; i < m_ga->m_chromSize; i++) {
+		//	if (i == point)
+		//		cout << "|";
+		//	cout << m_members[child1].m_chromosome[i];
+		//}
+
+		//cout << endl << "Before2: ";
+		//for (int i = 0; i < m_ga->m_chromSize; i++) {
+		//	if (i == point)
+		//		cout << "|";
+		//	cout << m_members[child2].m_chromosome[i];
+		//}
+		//cout << endl;
+
 		//cout << "Crossover point: " << point << endl;
 		bool temp = 0;
+
 		for(int i = point; i < m_ga->m_chromSize; i++) {
 			temp = m_members[child1].m_chromosome[i];
 			m_members[child1].m_chromosome[i] = m_members[child2].m_chromosome[i];
 			m_members[child2].m_chromosome[i] = temp;
 		}
+
+		//cout << "After1: ";
+		//for (int i = 0; i < m_ga->m_chromSize; i++) {
+		//	if (i == point)
+		//		cout << "|";
+		//	cout << m_members[child1].m_chromosome[i];
+		//}
+
+		//cout << endl << "After2: ";
+		//for (int i = 0; i < m_ga->m_chromSize; i++) {
+		//	if (i == point)
+		//		cout << "|";
+		//	cout << m_members[child2].m_chromosome[i];
+		//}
+		//cout << endl;
+
 	}
 }
 
 void Population::Mutate(const int& child1, const int& child2) {
+	
 	for (int j = 0; j < m_ga->m_chromSize; ++j) {
 		// mutate child one if chances are right
-		if (m_ga->RandFrac() < m_ga->m_pm)
+		if (m_ga->RandFrac() < m_ga->m_pm) {
 			m_members[child1].m_chromosome[j] = 1 - m_members[child1].m_chromosome[j];
+		}
 		// mutate child two if chances are right
-		if (m_ga->RandFrac() < m_ga->m_pm)
+		if (m_ga->RandFrac() < m_ga->m_pm) {
 			m_members[child2].m_chromosome[j] = 1 - m_members[child2].m_chromosome[j];
+		}
 	}
 }
 
@@ -134,9 +185,9 @@ void Population::Evaluate(const int& child1, const int& child2) {
 }
 
 ostream& operator<<(ostream& os, const Population& population) {
-    os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness;
-	//for (int i = 0; i < population.m_totalMembers; ++i) {
-	//	os << i << population.m_members[i] << endl;
-	//}
+    //os << "best: " << population.m_maxFitness << " ave: " << population.m_sumFitness / population.m_totalMembers << " worst: " << population.m_minFitness;
+	for (int i = 0; i < population.m_totalMembers; ++i) {
+		os << i << population.m_members[i] << " times selected(" << population.m_selectionCounts[i] << ")" << endl;
+	}
     return os;
 }

@@ -4,7 +4,7 @@ Evaluator::Evaluator() {
 	numValues = 3;
 	minValue = -5.12;
 	maxValue = 5.12;
-	totalBitLength = 0;
+	totalBitLength = 100;
 	valueBitLength = 0;
 	floatingPoint = 0;
 }
@@ -90,15 +90,22 @@ double OneSum(bool* binaryData, const int& length) {
 	return sum;
 }
 
+double XSquared(bool* binaryData, const int& length) {
+	double sum = 0;
+	return sum;
+}
+
 double Evaluator::Evaluate(bool* binaryData, const int& length) {
-	float* xValues = new float[numValues];
-	for (int i = 0; i < numValues; ++i) {
-		xValues[i] = BinaryToDecimal(binaryData, i * valueBitLength, (i + 1) * valueBitLength);
-	}
+	//float* xValues = new float[numValues];
+	//for (int i = 0; i < numValues; ++i) {
+	//	xValues[i] = BinaryToDecimal(binaryData, i * valueBitLength, (i + 1) * valueBitLength);
+	//}
 
-	double fitness = DeJong1(xValues, numValues);
+	//double fitness = DeJong1(xValues, numValues);
 
-	delete[] xValues;
+	//delete[] xValues;
+
+	double fitness = OneSum(binaryData, length);
 
 	return fitness;
 }

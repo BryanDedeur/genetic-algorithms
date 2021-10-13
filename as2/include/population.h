@@ -54,6 +54,7 @@ class Population {
 
 		int m_selected1;
 		int m_selected2;
+		int* m_selectionCounts;
 
 
 };
