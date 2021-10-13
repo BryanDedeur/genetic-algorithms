@@ -20,7 +20,7 @@ class Population(object):
 
 	def evaluate(self):
 		for i in range(self.options.populationSize): #ind in self.individuals:
-			self.individuals[i].fitness = evaluator.EvaluateX2(self.individuals[i])
+			self.individuals[i].fitness = evaluator.Evaluate(self.individuals[i])
 			
 	def printPop(self, start, end):
 		i = 0
@@ -88,7 +88,7 @@ class Population(object):
 
 	def halve(self, child):
 		for	i in range(self.options.populationSize,	self.options.populationSize	* self.options.chcLambda):
-			self.individuals[i].fitness = evaluator.EvaluateX2(self.individuals[i])
+			self.individuals[i].fitness = evaluator.Evaluate(self.individuals[i])
 		self.individuals.sort (key = self.comparator, reverse = True)
 		#self.printPop(0, self.options.populationSize * self.options.chcLambda)
 		for i in range(self.options.populationSize):
@@ -104,3 +104,7 @@ class Population(object):
 			for i in range(xp, self.options.chromosomeLength):
 				c1.chromosome[i] = p2.chromosome[i]
 				c2.chromosome[i] = p1.chromosome[i]
+
+	def visualize(self):
+		return
+

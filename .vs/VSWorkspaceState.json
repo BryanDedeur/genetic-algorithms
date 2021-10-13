@@ -1,7 +1,11 @@
 {
   "ExpandedNodes": [
     "",
-    "\\as3"
+    "\\cs790K",
+    "\\cs790K\\as3",
+    "\\cs790K\\as3\\benchmarks",
+    "\\cs790K\\as3\\solutions"
   ],
+  "SelectedNode": "\\cs790K\\as3\\solutions\\berlin52.opt.tour",
   "PreviewInSolutionExplorer": false
 }

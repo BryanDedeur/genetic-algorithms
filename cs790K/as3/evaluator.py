@@ -1,6 +1,9 @@
 
 import individual
 
+def Evaluate(individual):
+	return EvaluateOneMax(individual);
+
 def EvaluateOneMax(individual):
 	sum = 0
 	for i in range(individual.chromosomeLength):
