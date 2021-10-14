@@ -1,16 +1,20 @@
+
+
+import evaluator
+from ga import GA
+from problem import TSP
+from tour import Tour
+
 import os.path
 import sys
-
-from ga import GA
 from os import listdir
 from os import path
 from os.path import isfile, join
-from problem import TSP
 
 instances = []
 
 # get all files in directory
-benchmarkPath = os.getcwd() + "/cs790K/as3/benchmarks/"
+benchmarkPath = os.getcwd() + "/benchmarks/"
 
 if not path.exists(benchmarkPath):
     print("Cannot find benchmarks path: ", benchmarkPath)
@@ -21,6 +25,11 @@ for filePath in listdir(benchmarkPath):
     if (instance):
         instances.append(instance)
 
-ga = GA()
+#for instance in instances:
+evaluator = evaluator.Evaluator(instances[0])
+ga = GA(evaluator)
 ga.Init()
-ga.Run()
+ga.Run(ga.options.randomSeed)
+    
+evaluator.bestTour.Print()
+#print("Best tour: " + str(evaluator.bestTour.totalCost))

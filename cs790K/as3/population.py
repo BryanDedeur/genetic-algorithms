@@ -1,26 +1,32 @@
 
-import individual
+
 import evaluator
 import random
 import utils
 
-class Population(object):
+from individual import Individual
 
-	def	__init__(self, options):
+class Population(object):
+	def	__init__(self, options, eval):
 		self.options = options;
+		self.evaluator = eval
+
 		self.individuals = []
 		self.min = -1
 		self.max = -1
 		self.avg = -1
-		# initialize population with randomly generated Individuals
-		for i in range(options.populationSize * options.chcLambda):
-			self.individuals.append(individual.Individual(options))
-		self.evaluate()
 
+
+	def init(self):
+		# initialize population with randomly generated Individuals
+		for i in range(self.options.populationSize * self.options.chcLambda):
+			self.individuals.append(Individual(self.options, self.evaluator))
+			self.individuals[i].init()
 
 	def evaluate(self):
+		# evaluates all individuals in population
 		for i in range(self.options.populationSize): #ind in self.individuals:
-			self.individuals[i].fitness = evaluator.Evaluate(self.individuals[i])
+			self.individuals[i].evaluate()
 			
 	def printPop(self, start, end):
 		i = 0
@@ -88,7 +94,7 @@ class Population(object):
 
 	def halve(self, child):
 		for	i in range(self.options.populationSize,	self.options.populationSize	* self.options.chcLambda):
-			self.individuals[i].fitness = evaluator.Evaluate(self.individuals[i])
+			self.individuals[i].evaluate()
 		self.individuals.sort (key = self.comparator, reverse = True)
 		#self.printPop(0, self.options.populationSize * self.options.chcLambda)
 		for i in range(self.options.populationSize):
@@ -96,12 +102,12 @@ class Population(object):
 			#			child.individuals[i] = self.individuals[i]
 
 	def xover1Pt(self, p1, p2, c1, c2):
-		for i in range(self.options.chromosomeLength):
+		for i in range(self.evaluator.encodedDataLength):
 			c1.chromosome[i] = p1.chromosome[i]
 			c2.chromosome[i] = p2.chromosome[i]
 		if utils.flip(self.options.pCross):
-			xp = utils.randInt(1, self.options.chromosomeLength)
-			for i in range(xp, self.options.chromosomeLength):
+			xp = utils.randInt(1, self.evaluator.encodedDataLength)
+			for i in range(xp, self.evaluator.encodedDataLength):
 				c1.chromosome[i] = p2.chromosome[i]
 				c2.chromosome[i] = p1.chromosome[i]
 

@@ -2,14 +2,14 @@
 
 class Options:
 	def __init__(self):
-		self.chromosomeLength = 100
-		self.populationSize = 100
-		self.maxGen = 150
+		self.populationSize = 50
+		self.maxGen = 75
 		self.pCross = 0.9
 		self.pMut = 0.05
-		self.infile = ""
+
+		self.chcLambda = 2
+
 		self.randomSeed = 200
 		self.randomSeeds = {}
-		self.chcLambda = 2
 
 

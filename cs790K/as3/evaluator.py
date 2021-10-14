@@ -1,27 +1,52 @@
-
 import individual
+import random
 
-def Evaluate(individual):
-	return EvaluateOneMax(individual);
+from problem import TSP
+from tour import Tour
 
-def EvaluateOneMax(individual):
-	sum = 0
-	for i in range(individual.chromosomeLength):
-		sum += individual.chromosome[i]
+class Evaluator:
+	def __init__(self, problem):
+		# variables
+		self.problem = problem
+		self.tour = Tour(problem)
+		self.bestTour = Tour(problem)
+		self.encodedDataLength = len(self.problem.coordinates) - 1 # we skip the first
+	
+	def getRandomString(self):
+		# make array using base 0 indicies not size of actual data
+		temp = []
+		for i in range(self.encodedDataLength):
+			temp.append(i)
+		# randomly shuffle data around
+		for i in range(len(temp)):
+			i2 = random.randint(0, len(temp) - 1)
+			tempVal = temp[i]
+			temp[i] = temp[i2]
+			temp[i2] = tempVal
+		return temp
 
-	return sum
+	def evaluate(self, encodedData):
+		if not self.validEncoding(encodedData):
+			print("Encoded data is invalid:" + encodedData)
+			quit()
 
-min = -5.12
-precision = 1/1023
+		# construct tour
+		self.tour.Clear()
+		for i in range(len(encodedData)):
+			self.tour.Add(encodedData[i] + 1)
+		self.tour.Add(0)
 
-def EvaluateX2(individual):
-	x = decode(individual.chromosome, 0, individual.chromosomeLength)
-	val = min + precision * x
-	return val * val
+		# track best tour
+		if (self.tour.totalCost < self.bestTour.totalCost):
+			self.bestTour = self.tour
 
-import math
-def decode(chrom, start, end):
-	sum = 0
-	for i in range(start, end):
-		sum += chrom[i] * math.pow(2, i-start)
-	return sum
+		return 1/self.tour.totalCost, self.tour.totalCost
+
+	# tests if encoded data is valid
+	def validEncoding(self, data):
+		return True
+
+	# tests if decoded data is valid
+	def validDecoding(self, data):
+		return True
+

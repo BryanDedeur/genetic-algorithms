@@ -5,15 +5,19 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 
+from evaluator import Evaluator
 from population import Population
 
 class GA:
-	def __init__(self):
+	def __init__(self, evaluator):
 		self.options = options.Options()
-		random.seed(self.options.randomSeed)
 
 		self.minFitness = float('inf')
 		self.maxFitness = 0
+		self.evaluator = evaluator
+
+		self.parent = Population(self.options, self.evaluator)
+		self.child = Population(self.options, self.evaluator)
 
 		# only if visualizing
 		plt.ion()
@@ -22,7 +26,6 @@ class GA:
 		self.axes = self.figure.add_subplot(111)
 		self.axes.set_xlabel('generation')
 		self.axes.set_ylabel('fitness')
-
 		
 		# initial plot data
 		x = np.linspace(0, self.options.maxGen, self.options.maxGen)
@@ -35,21 +38,27 @@ class GA:
 
 
 	def Init(self):
-		self.parent = Population(self.options)
-		self.parent.evaluate()
-		self.parent.statistics()
-		self.parent.report(0)
+		self.parent.init()
+		self.child.init()
 
-		self.child = Population(self.options)
+		self.parent.evaluate()
+
+		self.parent.statistics()
+		#self.parent.report(0)
+
 		self.visualizeRunGenerationFitness(0, self.child.min, self.child.avg, self.child.max)
 
 		return
 
-	def Run(self):
+	def Run(self, seed):
+		random.seed(seed)
+		print('GA evolving on seed (' + str(seed) + '): [', end = '')
 		for	i in range(1, self.options.maxGen):
+			if (i % int(self.options.maxGen * 0.1) == 0):
+				print('.', end = '')
 			self.parent.CHCGeneration(self.child)
 			self.child.statistics()
-			self.child.report(i)
+			#self.child.report(i)
 
 			self.visualizeRunGenerationFitness(i, self.child.min, self.child.avg, self.child.max)
 			
@@ -57,6 +66,7 @@ class GA:
 			self.parent = self.child
 			self.child = tmp
 
+		print(']')
 		return
 
 	def visualizeRunGenerationFitness(self, gen, min, ave, max):
