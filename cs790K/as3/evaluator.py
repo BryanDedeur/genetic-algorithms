@@ -39,6 +39,7 @@ class Evaluator:
 		# track best tour
 		if (self.tour.totalCost < self.bestTour.totalCost):
 			self.bestTour = self.tour
+			self.bestTour.Visualize()
 
 		return 1/self.tour.totalCost, self.tour.totalCost
 

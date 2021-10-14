@@ -21,20 +21,20 @@ class GA:
 
 		# only if visualizing
 		plt.ion()
-		self.figure = plt.figure()
+		self.figure = plt.figure(1)
 		self.figure.tight_layout()
 		self.axes = self.figure.add_subplot(111)
 		self.axes.set_xlabel('generation')
 		self.axes.set_ylabel('fitness')
 		
 		# initial plot data
-		x = np.linspace(0, self.options.maxGen, self.options.maxGen)
+		self.xValues = np.linspace(0, self.options.maxGen, self.options.maxGen)
 		self.minGenFitness = np.linspace(0, 0, self.options.maxGen)
 		self.maxGenFitness = np.linspace(0, 0, self.options.maxGen)
 		self.aveGenFitness = np.linspace(0, 0, self.options.maxGen)
-		self.minGenFitnessLine, = self.axes.plot(x, self.minGenFitness, 'b-')
-		self.aveGenFitnessLine, = self.axes.plot(x, self.maxGenFitness, 'g-')
-		self.maxGenFitnessLine, = self.axes.plot(x, self.aveGenFitness, 'r-') 
+		self.minGenFitnessLine, = self.axes.plot(self.xValues, self.minGenFitness, 'b-')
+		self.aveGenFitnessLine, = self.axes.plot(self.xValues, self.maxGenFitness, 'g-')
+		self.maxGenFitnessLine, = self.axes.plot(self.xValues, self.aveGenFitness, 'r-') 
 
 
 	def Init(self):
@@ -54,7 +54,7 @@ class GA:
 		random.seed(seed)
 		print('GA evolving on seed (' + str(seed) + '): [', end = '')
 		for	i in range(1, self.options.maxGen):
-			if (i % int(self.options.maxGen * 0.1) == 0):
+			if (i % int(self.options.maxGen * 0.05) == 0):
 				print('.', end = '')
 			self.parent.CHCGeneration(self.child)
 			self.child.statistics()
@@ -87,6 +87,11 @@ class GA:
 		# update visuals
 		self.figure.canvas.draw()
 		self.figure.canvas.flush_events()
+
+		#plt.plot(self.xValues, self.minGenFitness)
+		#plt.draw()
+		#plt.pause(0.001)
+
 
 		return
 
