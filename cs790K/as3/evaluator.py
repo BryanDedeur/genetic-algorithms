@@ -36,10 +36,13 @@ class Evaluator:
 			self.tour.Add(encodedData[i] + 1)
 		self.tour.Add(0)
 
+		#print(self.tour.totalCost)
+
 		# track best tour
-		if (self.tour.totalCost < self.bestTour.totalCost):
+		if (self.bestTour.totalCost > self.tour.totalCost):
+			print("Found better: " + str(self.tour.totalCost))
 			self.bestTour = self.tour
-			self.bestTour.Visualize()
+			self.bestTour.Print()
 
 		return 1/self.tour.totalCost, self.tour.totalCost
 

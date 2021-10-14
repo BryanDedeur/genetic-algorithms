@@ -7,20 +7,19 @@ import utils
 from individual import Individual
 
 class Population(object):
-	def	__init__(self, options, eval):
+	def	__init__(self, options, evaler):
 		self.options = options;
-		self.evaluator = eval
+		self.eval = evaler
 
 		self.individuals = []
 		self.min = -1
 		self.max = -1
 		self.avg = -1
 
-
 	def init(self):
 		# initialize population with randomly generated Individuals
 		for i in range(self.options.populationSize * self.options.chcLambda):
-			self.individuals.append(Individual(self.options, self.evaluator))
+			self.individuals.append(Individual(self.options, self.eval))
 			self.individuals[i].init()
 
 	def evaluate(self):
@@ -102,12 +101,12 @@ class Population(object):
 			#			child.individuals[i] = self.individuals[i]
 
 	def xover1Pt(self, p1, p2, c1, c2):
-		for i in range(self.evaluator.encodedDataLength):
+		for i in range(self.eval.encodedDataLength):
 			c1.chromosome[i] = p1.chromosome[i]
 			c2.chromosome[i] = p2.chromosome[i]
 		if utils.flip(self.options.pCross):
-			xp = utils.randInt(1, self.evaluator.encodedDataLength)
-			for i in range(xp, self.evaluator.encodedDataLength):
+			xp = utils.randInt(1, self.eval.encodedDataLength)
+			for i in range(xp, self.eval.encodedDataLength):
 				c1.chromosome[i] = p2.chromosome[i]
 				c2.chromosome[i] = p1.chromosome[i]
 

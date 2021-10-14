@@ -32,4 +32,8 @@ ga.Init()
 ga.Run(ga.options.randomSeed)
     
 evaluator.bestTour.Print()
+evaluator.bestTour.Show()
+print('wait')
+
+
 #print("Best tour: " + str(evaluator.bestTour.totalCost))

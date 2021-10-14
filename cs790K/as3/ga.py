@@ -26,7 +26,7 @@ class GA:
 		self.axes = self.figure.add_subplot(111)
 		self.axes.set_xlabel('generation')
 		self.axes.set_ylabel('fitness')
-		
+
 		# initial plot data
 		self.xValues = np.linspace(0, self.options.maxGen, self.options.maxGen)
 		self.minGenFitness = np.linspace(0, 0, self.options.maxGen)
@@ -84,14 +84,20 @@ class GA:
 			self.maxFitness = max;
 			self.axes.set_ylim([0, self.maxFitness * 1.2])
 
+		self.evaluator.bestTour.Visualize(self.evaluator.bestTour.sequence)
+
 		# update visuals
 		self.figure.canvas.draw()
 		self.figure.canvas.flush_events()
+
 
 		#plt.plot(self.xValues, self.minGenFitness)
 		#plt.draw()
 		#plt.pause(0.001)
 
-
 		return
 
+	def Show(self):
+		#print("SHOWING")
+		plt.show(block=True)
+		return

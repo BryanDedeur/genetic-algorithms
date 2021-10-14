@@ -16,30 +16,26 @@ class Tour:
 
 		# only if visualizing
 		plt.ion()
-		self.figure = plt.figure(2)
-		self.figure.tight_layout()
-		self.axes = self.figure.add_subplot(111)
-		#self.axes.set_xlim([0, 1000])
-		#self.axes.set_ylim([0, 1000])
+		self.fig = plt.figure(2)
+		self.fig.tight_layout()
+		self.axes = self.fig.add_subplot(111)
 
-		self.xValues = []
-		self.yValues = []
-		for i in range(len(self.tsp.coordinates) + 1):
-			if not  i == len(self.tsp.coordinates) - 1
-				self.xValues.append(self.tsp.coordinates[i][0])
-				self.yValues.append(self.tsp.coordinates[i][1])
+		self.xValues = np.linspace(0, 0, len(self.tsp.coordinates) + 1)
+		self.yValues = np.linspace(0, 0, len(self.tsp.coordinates) + 1)
 
 		self.tourLine, = self.axes.plot(self.xValues, self.yValues, 'b-')
 
 		x = []
 		y = []
-		for coordinate in self.tsp.coordinates:
-			x.append(coordinate[0])
-			y.append(coordinate[1])
+		for i in range(len(self.tsp.coordinates)):
+			if (i > 0):
+				x.append(self.tsp.coordinates[i][0])
+				y.append(self.tsp.coordinates[i][1])
 
-		self.axes.scatter(x, y)
+		self.axes.scatter(x, y, s=1.25)
+		self.axes.scatter(self.tsp.coordinates[0][0], self.tsp.coordinates[0][1], marker = "*")
 		self.axes.autoscale_view()
-		plt.show(block=False)
+		#plt.show(block=False)
 
 	def Add(self, coordId):
 		if len(self.sequence) == 0:
@@ -59,21 +55,29 @@ class Tour:
 		self.sequence = []
 		self.sequence.append(self.start)
 
-	def Visualize(self):
+	def Visualize(self, sequence):
 		# update data
-		for i in range(len(self.sequence)):
-			coordinateId = self.sequence[i]
+		for i in range(len(sequence)):
+			coordinateId = sequence[i]
 			self.xValues[i] = self.tsp.coordinates[coordinateId][0]
 			self.yValues[i] = self.tsp.coordinates[coordinateId][1]
 
 		#self.axes.plot(self.xValues, self.yValues, 'b-')
 		self.tourLine.set_data(self.xValues, self.yValues)
-		#self.axes.relim()
-		self.figure.canvas.draw()
-		self.figure.canvas.flush_events()
+		self.tourLine.set_ydata(self.yValues)
 
 		# update visuals
-		#self.figure.canvas.draw()
-		#self.figure.canvas.flush_events()
+		self.fig.canvas.draw()
+		self.fig.canvas.flush_events()
+		
 		return
+
+	def Show(self):
+		#print("SHOWING")
+		plt.plot(self.xValues, self.yValues)
+		plt.show(block=True)
+		return
+
+
+
 
