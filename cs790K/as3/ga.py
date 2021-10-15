@@ -9,16 +9,16 @@ from evaluator import Evaluator
 from population import Population
 
 class GA:
-	def __init__(self, evaluator):
+	def __init__(self, evaler):
 		self.options = options.Options()
 
 		self.minFitness = float('inf')
 		self.maxFitness = 0
 		self.maxObjective = 0
-		self.evaluator = evaluator
+		self.eval = evaler
 
-		self.parent = Population(self.options, self.evaluator)
-		self.child = Population(self.options, self.evaluator)
+		self.parent = Population(self.options, self.eval)
+		self.child = Population(self.options, self.eval)
 
 		# only if visualizing
 		plt.ion()
@@ -36,6 +36,8 @@ class GA:
 		self.minGenFitnessLine, = self.axes[0].plot(self.xValues, self.minGenFitness, 'b-')
 		self.aveGenFitnessLine, = self.axes[0].plot(self.xValues, self.maxGenFitness, 'g-')
 		self.maxGenFitnessLine, = self.axes[0].plot(self.xValues, self.aveGenFitness, 'r-') 
+		self.axes[0].set_title('GA Ave Data Generation')
+		self.axes[0].set_ylabel('Fitness')
 
 		self.minGenObjective = np.linspace(0, 0, self.options.maxGen)
 		self.maxGenObjective = np.linspace(0, 0, self.options.maxGen)
@@ -43,7 +45,8 @@ class GA:
 		self.minGenObjectiveLine, = self.axes[1].plot(self.xValues, self.minGenObjective, 'b-')
 		self.aveGenObjectiveLine, = self.axes[1].plot(self.xValues, self.maxGenObjective, 'g-')
 		self.maxGenObjectiveLine, = self.axes[1].plot(self.xValues, self.aveGenObjective, 'r-') 
-
+		self.axes[1].set_xlabel('Generation')
+		self.axes[1].set_ylabel('Objective')
 
 	def Init(self):
 		self.parent.init()
@@ -104,15 +107,9 @@ class GA:
 			self.maxObjective = maxO
 			self.axes[1].set_ylim([0, self.maxObjective * 1.2])
 
-
 		# update visuals
 		self.figure.canvas.draw()
 		self.figure.canvas.flush_events()
-
-
-		#plt.plot(self.xValues, self.minGenFitness)
-		#plt.draw()
-		#plt.pause(0.001)
 
 		return
 

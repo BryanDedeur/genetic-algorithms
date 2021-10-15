@@ -145,14 +145,64 @@ class Population(object):
 				c2.chromosome[i] = p1.chromosome[i]
 				c1.chromosome[i] = p2.chromosome[i]
 
-			# repair chromosomes
+			# exchange disrupted data
 			for i in range(minX, maxX, 1):
 				for j in range(self.eval.encodedDataLength):
-					if i != j and (j < minX or j >= maxX):
+					if (j < minX or j >= maxX):
 						if c1.chromosome[i] == c1.chromosome[j]:
 							c1.chromosome[j] = c2.chromosome[i]
 						if c2.chromosome[i] == c2.chromosome[j]:
 							c2.chromosome[j] = c1.chromosome[i]
+
+			# repair c1
+			# get counts of things
+			needsRemoved = []
+			needsAdded = []
+			for i in range(self.eval.encodedDataLength):
+				counter = 0
+				for j in range(self.eval.encodedDataLength):
+					if c1.chromosome[j] == i:
+						counter = counter + 1
+				if counter > 1:
+					needsRemoved.append(i)
+				if counter == 0:
+					needsAdded.append(i)
+			
+			# repair odd counts of items
+			if needsRemoved != 0:
+				for i in range(self.eval.encodedDataLength):
+					for j in range(len(needsRemoved)):
+						if c1.chromosome[i] == needsRemoved[j]:
+							c1.chromosome[i] = needsAdded[j]
+							needsAdded.remove(needsAdded[j])
+							needsRemoved.remove(needsRemoved[j])
+							break
+			
+			# repair c2
+			# get counts of things
+			needsRemoved = []
+			needsAdded = []
+			for i in range(self.eval.encodedDataLength):
+				counter = 0
+				for j in range(self.eval.encodedDataLength):
+					if c2.chromosome[j] == i:
+						counter = counter + 1
+				if counter > 1:
+					needsRemoved.append(i)
+				if counter == 0:
+					needsAdded.append(i)
+
+			if needsRemoved != 0:
+				# repair odd counts of items
+				for i in range(self.eval.encodedDataLength):
+					for j in range(len(needsRemoved)):
+						if c2.chromosome[i] == needsRemoved[j]:
+							c2.chromosome[i] = needsAdded[j]
+							needsAdded.remove(needsAdded[j])
+							needsRemoved.remove(needsRemoved[j])
+							break
+
+		return c1, c2
 
 	def visualize(self):
 		return

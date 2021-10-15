@@ -1,15 +1,22 @@
 import individual
 import random
+import tour
+import copy
 
 from problem import TSP
-from tour import Tour
 
 class Evaluator:
-	def __init__(self, problem):
+	def __init__(self, problem, visualize):
 		# variables
 		self.problem = problem
-		self.tour = Tour(problem)
-		self.bestTour = Tour(problem)
+		self.tour = tour.Tour(problem, False)
+
+		if visualize:
+			self.bestTour = tour.Tour(problem, True)
+			self.bestTour.subname = 'best'
+			self.worstTour = tour.Tour(problem, True)
+			self.worstTour.subname = 'worst'
+			self.worstTour.totalCost = 0
 		self.encodedDataLength = len(self.problem.coordinates) - 1 # we skip the first
 	
 	def getRandomString(self):
@@ -36,18 +43,23 @@ class Evaluator:
 			self.tour.Add(encodedData[i] + 1)
 		self.tour.Add(0)
 
-		#print(self.tour.totalCost)
-
 		# track best tour
-		if (self.bestTour.totalCost > self.tour.totalCost):
-			print("Found better: " + str(self.tour.totalCost))
-			self.bestTour = self.tour
-			self.bestTour.Print()
+		if self.bestTour.totalCost > self.tour.totalCost:
+			self.bestTour.sequence = self.tour.sequence
+			self.bestTour.totalCost = self.tour.totalCost
+			self.bestTour.Visualize()
+
+		# track worst tour
+		if self.worstTour.totalCost < self.tour.totalCost:
+			self.worstTour.sequence = self.tour.sequence
+			self.worstTour.totalCost = self.tour.totalCost
+			self.worstTour.Visualize()
 
 		return 1/self.tour.totalCost, self.tour.totalCost
 
 	# tests if encoded data is valid
 	def validEncoding(self, data):
+		# valid if all items are different
 		return True
 
 	# tests if decoded data is valid

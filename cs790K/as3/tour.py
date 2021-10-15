@@ -7,16 +7,34 @@ import numpy as np
 from problem import TSP
 
 class Tour:
-	def __init__(self, problem):
+	def __init__(self, problem, visualize):
 		# variables
 		self.tsp = problem
+		self.subname = ''
 		self.totalCost = math.inf
 		self.sequence = [] # coordinate id
 		self.start = 0
 
-		# only if visualizing
+		if (visualize == True):
+			# only if visualizing
+			plt.ion()
+			self.figure, self.axes  = plt.subplots(1)
+			self.line, = self.axes.plot(np.linspace(0, 0, len(self.sequence)), np.linspace(0, 0, len(self.sequence)), color=(0,0,0,0.25))
+			# make scatter plot with coordinates
+			x = []
+			y = []
+			for i in range(len(self.tsp.coordinates)):
+				if (i > 0):
+					x.append(self.tsp.coordinates[i][0])
+					y.append(self.tsp.coordinates[i][1])
 
-		#plt.show(block=False)
+			self.axes.scatter(x, y, s=3, color='black')
+			self.axes.scatter(self.tsp.coordinates[0][0], self.tsp.coordinates[0][1], marker = "*", color='red')
+			self.axes.autoscale_view()
+			#self.xValues = np.linspace(0, 0, self.options.maxGen)
+
+
+			#plt.show(block=False)
 
 	def Add(self, coordId):
 		if len(self.sequence) == 0:
@@ -37,9 +55,7 @@ class Tour:
 		self.sequence.append(self.start)
 
 	def Visualize(self):
-		fig = plt.figure(2)
-		fig.tight_layout()
-		axes = fig.add_subplot(111)
+		self.axes.set_title(self.tsp.name + ' ' + self.subname)
 
 		x = []
 		y = []
@@ -47,28 +63,16 @@ class Tour:
 			x.append(self.tsp.coordinates[self.sequence[i]][0])
 			y.append(self.tsp.coordinates[self.sequence[i]][1])
 
-		axes.plot(x, y, color=(0,0,0,0.25))
+		self.line.set_data(x, y)
 
-		x = []
-		y = []
-		for i in range(len(self.tsp.coordinates)):
-			if (i > 0):
-				x.append(self.tsp.coordinates[i][0])
-				y.append(self.tsp.coordinates[i][1])
-
-		axes.scatter(x, y, s=3, color='black')
-		axes.scatter(self.tsp.coordinates[0][0], self.tsp.coordinates[0][1], marker = "*", color='red')
-		axes.autoscale_view()
-
-		# update visuals
-		#plt.plot(self.xValues, self.yValues)
-		plt.show(block=True)
+		self.figure.canvas.draw()
+		self.figure.canvas.flush_events()
 		
 		return
 
-	def Show(self):
+	def Show(self, blocking):
 		#print("SHOWING")
-
+		self.figure.show()
 		return
 
 

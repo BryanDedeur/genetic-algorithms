@@ -1,5 +1,3 @@
-
-
 import evaluator
 from ga import GA
 from problem import TSP
@@ -26,13 +24,15 @@ for filePath in listdir(benchmarkPath):
         instances.append(instance)
 
 #for instance in instances:
-evaluator = evaluator.Evaluator(instances[0])
-ga = GA(evaluator)
+eval = evaluator.Evaluator(instances[0], True)
+ga = GA(eval)
 ga.Init()
 ga.Run(ga.options.randomSeed)
     
-evaluator.bestTour.Print()
-evaluator.bestTour.Visualize()
+eval.bestTour.Print()
+eval.worstTour.Print()
+eval.bestTour.Show(False)
+eval.worstTour.Show(True)
 print('wait')
 
 

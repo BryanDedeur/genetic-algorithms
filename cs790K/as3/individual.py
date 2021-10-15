@@ -4,21 +4,21 @@ import utils
 import evaluator
 
 class Individual:
-	def __init__(self, options, eval):
+	def __init__(self, options, evalr):
 		self.options = options
-		self.evaluator = eval
+		self.eval = evalr
 
 		self.chromosome = []
-		self.chromosomeLength = eval.encodedDataLength
+		self.chromosomeLength = self.eval.encodedDataLength
 
 		self.fitness = -1
 		self.objective = -1
 
 	def init(self):
-		self.chromosome = self.evaluator.getRandomString()
+		self.chromosome = self.eval.getRandomString()
 
 	def evaluate(self):
-		self.fitness, self.objective = self.evaluator.evaluate(self.chromosome)
+		self.fitness, self.objective = self.eval.evaluate(self.chromosome)
 
 	def mutate(self, options):
 		#print("TODO MAKE MUTATOR")
