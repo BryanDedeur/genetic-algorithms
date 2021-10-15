@@ -3,6 +3,7 @@ import math
 
 import matplotlib.pyplot as plt
 import numpy as np
+import os
 
 from problem import TSP
 
@@ -10,10 +11,10 @@ class Tour:
 	def __init__(self, problem, visualize):
 		# variables
 		self.tsp = problem
-		self.subname = ''
 		self.totalCost = math.inf
 		self.sequence = [] # coordinate id
 		self.start = 0
+		self.name = ''
 
 		if (visualize == True):
 			# only if visualizing
@@ -54,8 +55,12 @@ class Tour:
 		self.sequence = []
 		self.sequence.append(self.start)
 
+	def SetName(self, name):
+		self.name = name
+		self.axes.set_title(name)
+
+
 	def Visualize(self):
-		self.axes.set_title(self.tsp.name + ' ' + self.subname)
 
 		x = []
 		y = []
@@ -74,6 +79,9 @@ class Tour:
 		#print("SHOWING")
 		self.figure.show()
 		return
+
+	def Save(self):
+		self.figure.savefig(os.getcwd() + '/results/' + self.name + '.png')
 
 
 

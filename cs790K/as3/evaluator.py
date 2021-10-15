@@ -13,9 +13,9 @@ class Evaluator:
 
 		if visualize:
 			self.bestTour = tour.Tour(problem, True)
-			self.bestTour.subname = 'best'
+			self.bestTour.SetName(self.problem.name + ' best')
 			self.worstTour = tour.Tour(problem, True)
-			self.worstTour.subname = 'worst'
+			self.worstTour.SetName(self.problem.name + ' worst')
 			self.worstTour.totalCost = 0
 		self.encodedDataLength = len(self.problem.coordinates) - 1 # we skip the first
 	
