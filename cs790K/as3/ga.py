@@ -14,6 +14,7 @@ class GA:
 
 		self.minFitness = float('inf')
 		self.maxFitness = 0
+		self.maxObjective = 0
 		self.evaluator = evaluator
 
 		self.parent = Population(self.options, self.evaluator)
@@ -21,20 +22,27 @@ class GA:
 
 		# only if visualizing
 		plt.ion()
-		self.figure = plt.figure(1)
-		self.figure.tight_layout()
-		self.axes = self.figure.add_subplot(111)
-		self.axes.set_xlabel('generation')
-		self.axes.set_ylabel('fitness')
+		self.figure, self.axes  = plt.subplots(2)
+		#self.figure.tight_layout()
+		#self.axes = self.figure.add_subplot(111)
+		#self.axes.set_xlabel('generation')
+		#self.axes.set_ylabel('fitness')
 
 		# initial plot data
 		self.xValues = np.linspace(0, self.options.maxGen, self.options.maxGen)
 		self.minGenFitness = np.linspace(0, 0, self.options.maxGen)
 		self.maxGenFitness = np.linspace(0, 0, self.options.maxGen)
 		self.aveGenFitness = np.linspace(0, 0, self.options.maxGen)
-		self.minGenFitnessLine, = self.axes.plot(self.xValues, self.minGenFitness, 'b-')
-		self.aveGenFitnessLine, = self.axes.plot(self.xValues, self.maxGenFitness, 'g-')
-		self.maxGenFitnessLine, = self.axes.plot(self.xValues, self.aveGenFitness, 'r-') 
+		self.minGenFitnessLine, = self.axes[0].plot(self.xValues, self.minGenFitness, 'b-')
+		self.aveGenFitnessLine, = self.axes[0].plot(self.xValues, self.maxGenFitness, 'g-')
+		self.maxGenFitnessLine, = self.axes[0].plot(self.xValues, self.aveGenFitness, 'r-') 
+
+		self.minGenObjective = np.linspace(0, 0, self.options.maxGen)
+		self.maxGenObjective = np.linspace(0, 0, self.options.maxGen)
+		self.aveGenObjective = np.linspace(0, 0, self.options.maxGen)
+		self.minGenObjectiveLine, = self.axes[1].plot(self.xValues, self.minGenObjective, 'b-')
+		self.aveGenObjectiveLine, = self.axes[1].plot(self.xValues, self.maxGenObjective, 'g-')
+		self.maxGenObjectiveLine, = self.axes[1].plot(self.xValues, self.aveGenObjective, 'r-') 
 
 
 	def Init(self):
@@ -46,7 +54,7 @@ class GA:
 		self.parent.statistics()
 		#self.parent.report(0)
 
-		self.visualizeRunGenerationFitness(0, self.child.min, self.child.avg, self.child.max)
+		self.visualizeRunGeneration(0, self.parent.min, self.parent.avg, self.parent.max, self.parent.minO,self.parent.avgO ,self.parent.maxO )
 
 		return
 
@@ -60,7 +68,7 @@ class GA:
 			self.child.statistics()
 			#self.child.report(i)
 
-			self.visualizeRunGenerationFitness(i, self.child.min, self.child.avg, self.child.max)
+			self.visualizeRunGeneration(i, self.child.min, self.child.avg, self.child.max, self.child.minO, self.child.avgO, self.child.maxO)
 			
 			tmp = self.parent
 			self.parent = self.child
@@ -69,7 +77,7 @@ class GA:
 		print(']')
 		return
 
-	def visualizeRunGenerationFitness(self, gen, min, ave, max):
+	def visualizeRunGeneration(self, gen, min, ave, max, minO, aveO, maxO):
 		# update data
 		self.minGenFitness[gen] = min
 		self.aveGenFitness[gen] = ave
@@ -78,13 +86,24 @@ class GA:
 		self.minGenFitnessLine.set_ydata(self.minGenFitness)
 		self.aveGenFitnessLine.set_ydata(self.aveGenFitness)
 		self.maxGenFitnessLine.set_ydata(self.maxGenFitness)
+
+		self.minGenObjective[gen] = minO
+		self.aveGenObjective[gen] = aveO
+		self.maxGenObjective[gen] = maxO
+
+		self.minGenObjectiveLine.set_ydata(self.minGenObjective)
+		self.aveGenObjectiveLine.set_ydata(self.aveGenObjective)
+		self.maxGenObjectiveLine.set_ydata(self.maxGenObjective)
 		
 		# deterime if we should resize plot
 		if (max > self.maxFitness):
 			self.maxFitness = max;
-			self.axes.set_ylim([0, self.maxFitness * 1.2])
+			self.axes[0].set_ylim([0, self.maxFitness * 1.2])
 
-		self.evaluator.bestTour.Visualize(self.evaluator.bestTour.sequence)
+		if (maxO > self.maxObjective):
+			self.maxObjective = maxO
+			self.axes[1].set_ylim([0, self.maxObjective * 1.2])
+
 
 		# update visuals
 		self.figure.canvas.draw()

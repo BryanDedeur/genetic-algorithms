@@ -32,7 +32,7 @@ ga.Init()
 ga.Run(ga.options.randomSeed)
     
 evaluator.bestTour.Print()
-evaluator.bestTour.Show()
+evaluator.bestTour.Visualize()
 print('wait')
 
 

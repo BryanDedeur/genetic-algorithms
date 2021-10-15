@@ -15,26 +15,7 @@ class Tour:
 		self.start = 0
 
 		# only if visualizing
-		plt.ion()
-		self.fig = plt.figure(2)
-		self.fig.tight_layout()
-		self.axes = self.fig.add_subplot(111)
 
-		self.xValues = np.linspace(0, 0, len(self.tsp.coordinates) + 1)
-		self.yValues = np.linspace(0, 0, len(self.tsp.coordinates) + 1)
-
-		self.tourLine, = self.axes.plot(self.xValues, self.yValues, 'b-')
-
-		x = []
-		y = []
-		for i in range(len(self.tsp.coordinates)):
-			if (i > 0):
-				x.append(self.tsp.coordinates[i][0])
-				y.append(self.tsp.coordinates[i][1])
-
-		self.axes.scatter(x, y, s=1.25)
-		self.axes.scatter(self.tsp.coordinates[0][0], self.tsp.coordinates[0][1], marker = "*")
-		self.axes.autoscale_view()
 		#plt.show(block=False)
 
 	def Add(self, coordId):
@@ -55,27 +36,39 @@ class Tour:
 		self.sequence = []
 		self.sequence.append(self.start)
 
-	def Visualize(self, sequence):
-		# update data
-		for i in range(len(sequence)):
-			coordinateId = sequence[i]
-			self.xValues[i] = self.tsp.coordinates[coordinateId][0]
-			self.yValues[i] = self.tsp.coordinates[coordinateId][1]
+	def Visualize(self):
+		fig = plt.figure(2)
+		fig.tight_layout()
+		axes = fig.add_subplot(111)
 
-		#self.axes.plot(self.xValues, self.yValues, 'b-')
-		self.tourLine.set_data(self.xValues, self.yValues)
-		self.tourLine.set_ydata(self.yValues)
+		x = []
+		y = []
+		for i in range(len(self.sequence)):
+			x.append(self.tsp.coordinates[self.sequence[i]][0])
+			y.append(self.tsp.coordinates[self.sequence[i]][1])
+
+		axes.plot(x, y, color=(0,0,0,0.25))
+
+		x = []
+		y = []
+		for i in range(len(self.tsp.coordinates)):
+			if (i > 0):
+				x.append(self.tsp.coordinates[i][0])
+				y.append(self.tsp.coordinates[i][1])
+
+		axes.scatter(x, y, s=3, color='black')
+		axes.scatter(self.tsp.coordinates[0][0], self.tsp.coordinates[0][1], marker = "*", color='red')
+		axes.autoscale_view()
 
 		# update visuals
-		self.fig.canvas.draw()
-		self.fig.canvas.flush_events()
+		#plt.plot(self.xValues, self.yValues)
+		plt.show(block=True)
 		
 		return
 
 	def Show(self):
 		#print("SHOWING")
-		plt.plot(self.xValues, self.yValues)
-		plt.show(block=True)
+
 		return
 
 

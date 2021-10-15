@@ -20,17 +20,14 @@ class Individual:
 	def evaluate(self):
 		self.fitness, self.objective = self.evaluator.evaluate(self.chromosome)
 
-
-
-
-
-
-
 	def mutate(self, options):
 		#print("TODO MAKE MUTATOR")
-		#for i in range(self.chromosomeLength):
-		#	if utils.flip(options.pMut):
-		#			self.chromosome[i] = 1 - self.chromosome[i]
+		for i in range(self.chromosomeLength):
+			if utils.flip(options.pMut):
+				otherP = random.randint(0,self.chromosomeLength - 1)
+				temp = self.chromosome[i]
+				self.chromosome[i] = self.chromosome[otherP]
+				self.chromosome[otherP] = temp
 		return
 
 	def myCopy(self, ind):
