@@ -11,15 +11,14 @@ class Population(object):
 		self.options = options;
 		self.eval = evaler
 
-		self.individuals = []
-		self.min = -1
-		self.max = -1
-		self.avg = -1
+		self.individuals = [] 
 
-		self.sumObjective = 0;
-		self.min0 = -1
-		self.max0 = -1
-		self.avg0 = -1
+		self.fitStats = [] # 0 = min, 1 = ave, 2 = max, 3 = sum
+		self.objStats = [] # 0 = min, 1 = ave, 2 = max, 3 = sum
+
+		for i in range(4):
+			self.fitStats.append(0)
+			self.objStats.append(0)
 
 	def init(self):
 		# initialize population with randomly generated Individuals
@@ -27,51 +26,62 @@ class Population(object):
 			self.individuals.append(Individual(self.options, self.eval))
 			self.individuals[i].init()
 
-	def evaluate(self):
+	def SetSeed(self, seed):
+		random.seed(seed)
+		for i in range(self.options.populationSize):
+			individuals[i].SetSeed(seed)
+
+	def evaluate(self, evalEachInd):
+		# reset stats
+		self.resetStatistics()
+
 		# evaluates all individuals in population
-		for i in range(self.options.populationSize): #ind in self.individuals:
-			self.individuals[i].evaluate()
-			
-	def printPop(self, start, end):
-		i = 0
-		for i in range(start, end, 1): #self.options.populationSize): #ind in self.individuals:
-			print(i, end=": ")
-			ind = self.individuals[i]
-			print (ind.chromosome, " Fit: ", ind.fitness)
-			i = i+1
-		self.report("")
+		for i in range(self.options.populationSize):
+			if evalEachInd:
+				self.individuals[i].evaluate()
+			# increment the statistics
+			self.computeMinMaxSum(self.individuals[i])
 
-	def report(self, gen):
-		print (gen, self.min, self.avg, self.max)
+		# compute averages
+		self.fitStats[1] = self.fitStats[3] / self.options.populationSize
+		self.objStats[1] = self.objStats[3] / self.options.populationSize
 
-	def statistics(self):
-		self.sumFitness = 0
-		self.min = self.individuals[0].fitness
-		self.max = self.individuals[0].fitness
-		self.avg = 0
-		self.sumObjective = 0
-		self.minO = self.individuals[0].objective
-		self.maxO = self.individuals[0].objective
-		self.avgO = 0
-		for i in range(self.options.populationSize): #ind in self.individuals:
-			ind = self.individuals[i]
-			self.sumFitness += ind.fitness
-			self.sumObjective += ind.objective
-			if ind.fitness < self.min:
-				self.min = ind.fitness
-			if ind.fitness > self.max:
-				self.max = ind.fitness
-			if ind.objective < self.minO:
-				self.minO = ind.objective
-			if ind.objective > self.maxO:
-				self.maxO = ind.objective
+	def resetStatistics(self):
+		# reset min
+		self.fitStats[0] = float('inf')
+		self.objStats[0] = float('inf')
 
-		self.avg = self.sumFitness/self.options.populationSize #len(self.individuals)
-		self.avgO = self.sumObjective/self.options.populationSize #len(self.individuals)
+		# reset ave
+		self.fitStats[1] = 0
+		self.objStats[1] = 0
 
+		# reset max
+		self.fitStats[2] = 0
+		self.objStats[2] = 0
+
+		# reset sums
+		self.fitStats[3] = 0
+		self.objStats[3] = 0
+
+	def computeMinMaxSum(self, ind):
+		# min max fitness
+		if ind.fitness < self.fitStats[0]:
+			self.fitStats[0] = ind.fitness
+		if ind.fitness > self.fitStats[2]:
+			self.fitStats[2] = ind.fitness
+
+		# min max objective
+		if ind.objective < self.objStats[0]:
+			self.objStats[0] = ind.objective
+		if ind.objective > self.objStats[2]:
+			self.objStats[2] = ind.objective
+
+		# sums
+		self.fitStats[3] += ind.fitness
+		self.objStats[3] += ind.objective
 
 	def select(self):
-		randFraction = self.sumFitness * random.random()
+		randFraction = self.fitStats[3] * random.random()
 		sum = 0
 		i = 0
 		for i in range(self.options.populationSize): #ind in self.individuals:
@@ -108,13 +118,19 @@ class Population(object):
 		return individual.fitness
 
 	def halve(self, child):
+		# evaluate new children
 		for	i in range(self.options.populationSize,	self.options.populationSize	* self.options.chcLambda):
 			self.individuals[i].evaluate()
+
+		# sort the population by fitness
 		self.individuals.sort (key = self.comparator, reverse = True)
-		#self.printPop(0, self.options.populationSize * self.options.chcLambda)
+
+		# set population to right batch size
 		for i in range(self.options.populationSize):
 			child.individuals[i].myCopy(self.individuals[i])
-			#			child.individuals[i] = self.individuals[i]
+
+		# gather statistics
+		self.evaluate(False)
 
 	def xover1Pt(self, p1, p2, c1, c2):
 		for i in range(self.eval.encodedDataLength):

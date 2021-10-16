@@ -24,16 +24,18 @@ for filePath in listdir(benchmarkPath):
         instances.append(instance)
 
 #for instance in instances:
-eval = evaluator.Evaluator(instances[0], True)
+eval = evaluator.Evaluator(instances[1], True)
 ga = GA(eval)
 ga.Init()
-ga.Run(ga.options.randomSeed)
+ga.RunAllSeeds()
+ga.Save()
     
+print("Best:")
 eval.bestTour.Print()
+print("Worst:")
 eval.worstTour.Print()
-eval.bestTour.Show(False)
-eval.worstTour.Show(True)
-print('wait')
 
+eval.bestTour.Save()
+eval.worstTour.Save()
 
 #print("Best tour: " + str(evaluator.bestTour.totalCost))

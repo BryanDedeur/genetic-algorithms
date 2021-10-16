@@ -18,6 +18,9 @@ class Evaluator:
 			self.worstTour.SetName(self.problem.name + ' worst')
 			self.worstTour.totalCost = 0
 		self.encodedDataLength = len(self.problem.coordinates) - 1 # we skip the first
+
+	def SetSeed(self, seed):
+		random.seed(seed)
 	
 	def getRandomString(self):
 		# make array using base 0 indicies not size of actual data

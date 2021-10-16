@@ -81,7 +81,9 @@ class Tour:
 		return
 
 	def Save(self):
-		self.figure.savefig(os.getcwd() + '/results/' + self.name + '.png')
+		path = os.getcwd() + '/results/' + self.name + '.png'
+		print("Saving to: " + path)
+		self.figure.savefig(path)
 
 
 

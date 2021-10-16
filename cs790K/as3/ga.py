@@ -17,18 +17,28 @@ class GA:
 		self.maxObjective = 0
 		self.eval = evaler
 
-		self.parent = Population(self.options, self.eval)
-		self.child = Population(self.options, self.eval)
+		self.runCount = 0
+
+		self.parents = Population(self.options, self.eval)
+		self.children = Population(self.options, self.eval)
 
 		self.sumFit = []
 		self.sumObj = []
 
+		# for running averages to display
+		self.aveFit = []
+		self.aveObj = []
+
 		for i in range(3):
 			self.sumFit.append([])
 			self.sumObj.append([])
+			self.aveFit.append([])
+			self.aveObj.append([])
 			for j in range(self.options.maxGen):
 				self.sumFit[i].append(0)
 				self.sumObj[i].append(0)
+				self.aveFit[i].append(0)
+				self.aveObj[i].append(0)
 
 
 		# only if visualizing
@@ -39,7 +49,6 @@ class GA:
 		self.objLines = []
 
 		xvalues = np.linspace(0, self.options.maxGen, self.options.maxGen)
-		tempyvalues = np.linspace(0, 0, self.options.maxGen)
 
 		for i in range(3):
 			if i == 0:
@@ -48,8 +57,8 @@ class GA:
 				line = 'g-'
 			elif i == 2:
 				line = 'r-'
-			self.fitLines.append(self.axes[0].plot(xvalues, tempyvalues, line)[0])
-			self.objLines.append(self.axes[1].plot(xvalues, tempyvalues, line)[0])
+			self.fitLines.append(self.axes[0].plot(xvalues, self.aveFit[i], line)[0])
+			self.objLines.append(self.axes[1].plot(xvalues, self.aveObj[i], line)[0])
 
 		self.axes[0].set_title('GA Ave Data Generation')
 		self.axes[0].set_ylabel('Fitness')
@@ -58,71 +67,65 @@ class GA:
 		self.axes[1].set_ylabel('Objective')
 
 	def Init(self):
-		self.parent.init()
-		self.child.init()
+		self.parents.init()
+		self.children.init()
 
-		self.parent.evaluate()
+		self.parents.evaluate(True)
 
-		self.parent.statistics()
-		#self.parent.report(0)
-
+		self.statistics(self.parents, 0)
 		self.visualizeRunGeneration(0)
 
 		return
 
+	def statistics(self, population, gen):
+		#statistics
+		for j in range(3):
+			self.sumFit[j][gen] = self.sumFit[j][gen] + population.fitStats[j]
+			self.sumObj[j][gen] = self.sumObj[j][gen] + population.objStats[j]
+			self.aveFit[j][gen] = self.sumFit[j][gen] / (self.runCount + 1)
+			self.aveObj[j][gen] = self.sumObj[j][gen] / (self.runCount + 1)
+
+	def RunAllSeeds(self):
+		for seed in self.options.seeds:
+			self.Run(seed)
+
 	def Run(self, seed):
 		random.seed(seed)
-		print('GA evolving on seed (' + str(seed) + '): [', end = '')
-		for	i in range(self.options.maxGen):
-			if (i % int(self.options.maxGen * 0.05) == 0):
+		print(str(self.runCount + 1) + '. GA evolving on seed (' + str(seed) + '): [', end = '')
+		for	g in range(self.options.maxGen):
+			self.parents.CHCGeneration(self.children)
+
+			self.statistics(self.children, g)
+
+			# update visuals less frequently
+			if (g % int(self.options.maxGen * 0.05) == 0):
 				print('.', end = '')
-			self.parent.CHCGeneration(self.child)
-			self.child.statistics()
-			#self.child.report(i)
-
-			self.sumFit[0][i] = self.sumFit[0][i] + self.child.min
-			self.sumFit[1][i] = self.sumFit[1][i] + self.child.avg
-			self.sumFit[2][i] = self.sumFit[2][i] + self.child.max
-
-			self.sumObj[0][i] = self.sumObj[0][i] + self.child.minO
-			self.sumObj[1][i] = self.sumObj[1][i] + self.child.avgO
-			self.sumObj[2][i] = self.sumObj[2][i] + self.child.maxO
-
-			self.visualizeRunGeneration(i)
+				self.visualizeRunGeneration(g)
 			
-			tmp = self.parent
-			self.parent = self.child
-			self.child = tmp
-
+			tmp = self.parents
+			self.parents = self.children
+			self.children = tmp
 		print(']')
+
+		self.runCount = self.runCount + 1
 		return
 
 	def visualizeRunGeneration(self, gen):
-		# update data
-
+		# plot the data
 		for j in range(3):
-			y1 = self.sumFit[j]
-			y2 = self.sumObj[j]
-
-			for i in range(self.options.maxGen):
-				if i <= gen:
-					y1[i] = y1[i] / (gen + 1);
-					y2[i] = y2[i] / (gen + 1);
-				elif gen > 0:
-					y1[i] = y1[i] / (gen);
-					y2[i] = y2[i] / (gen);
-
-			self.fitLines[j].set_ydata(self.sumFit[j])
-			self.objLines[j].set_ydata(self.sumObj[j])
+			self.fitLines[j].set_ydata(self.aveFit[j])
+			self.objLines[j].set_ydata(self.aveObj[j])
 		
 		# resize plot
-		if (self.sumFit[2][gen] / (gen + 1) > self.maxFitness):
-			self.maxFitness = self.sumFit[2][gen] / (gen + 1);
-			self.axes[0].set_ylim([0, self.maxFitness * 1.2])
+		scaler = 0.01
+		maxF = max(self.aveFit[2])
+		minF = min(self.aveFit[1])
 
-		if (self.sumObj[2][gen] / (gen + 1) > self.maxObjective):
-			self.maxObjective = self.sumObj[2][gen] / (gen + 1)
-			self.axes[1].set_ylim([0, self.maxObjective * 1.2])
+		maxO = max(self.aveObj[2])
+		minO = min(self.aveObj[1])
+
+		self.axes[0].set_ylim(minF - (minF * scaler), maxF + (maxF * scaler))
+		self.axes[1].set_ylim(minO - (minO * scaler), maxO + (maxO * scaler))
 
 		# update visuals
 		self.figure.canvas.draw()
@@ -134,3 +137,8 @@ class GA:
 		#print("SHOWING")
 		plt.show(block=True)
 		return
+
+	def Save(self):
+		path = os.getcwd() + '/results/' + self.name + '.png'
+		print("Saving to: " + path)
+		self.figure.savefig(path)

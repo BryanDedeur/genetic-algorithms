@@ -11,8 +11,11 @@ class Individual:
 		self.chromosome = []
 		self.chromosomeLength = self.eval.encodedDataLength
 
-		self.fitness = -1
-		self.objective = -1
+		self.fitness = 0
+		self.objective = 0
+
+	def SetSeed(self, seed):
+		random.seed(seed)
 
 	def init(self):
 		self.chromosome = self.eval.getRandomString()
