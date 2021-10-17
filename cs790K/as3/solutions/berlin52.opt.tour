@@ -1,6 +1,6 @@
-NAME : berlin52.opt.tour
-TYPE : TOUR
-DIMENSION : 52
+NAME: berlin52.opt.tour
+TYPE: TOUR
+DIMENSION: 52
 TOUR_SECTION
 1
 49

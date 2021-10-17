@@ -36,13 +36,39 @@ class Tour:
 
 
 			#plt.show(block=False)
+	def LoadFromFile(self, filePath):
+		print("Loading solution: " + filePath)
+		file = open(filePath, 'r')
+		lines = file.readlines()
+		file.close()
+
+		for i in range(len(lines)):
+			lines[i] = lines[i].lower()
+			if lines[i].find('name: ') != -1:
+				self.name = lines[i].replace('name: ', '').replace('\n', '')
+			elif lines[i].find('dimension: ') != -1:
+				self.dimensions = int(lines[i].replace('dimension: ', ''))
+			elif lines[i].find('tour_section') != -1:
+				i = i + 1
+				while lines[i].lower().find('eof') == -1:
+					for subStr in lines[i].split():
+						try:
+							int(subStr)
+						except ValueError:
+							continue
+						index = int(subStr)
+						if index == -1:
+							index = 1
+						self.Add(index - 1)
+					i = i + 1
+		return
 
 	def Add(self, coordId):
 		if len(self.sequence) == 0:
 			self.totalCost = 0
 		else:
 			cost = self.tsp.distances[coordId][self.sequence[len(self.sequence) - 1]]
-			self.totalCost = self.totalCost + cost
+			self.totalCost += cost
 		self.sequence.append(coordId)
 
 	def Print(self):
@@ -83,7 +109,9 @@ class Tour:
 	def Save(self):
 		path = os.getcwd() + '/results/' + self.name + '.png'
 		print("Saving to: " + path)
+		self.figure.show()
 		self.figure.savefig(path)
+
 
 
 

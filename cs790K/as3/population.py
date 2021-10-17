@@ -2,7 +2,6 @@
 
 import evaluator
 import random
-import utils
 
 from individual import Individual
 
@@ -21,6 +20,8 @@ class Population(object):
 			self.objStats.append(0)
 
 	def init(self):
+		self.individuals = [] 
+
 		# initialize population with randomly generated Individuals
 		for i in range(self.options.populationSize * self.options.chcLambda):
 			self.individuals.append(Individual(self.options, self.eval))
@@ -29,7 +30,7 @@ class Population(object):
 	def SetSeed(self, seed):
 		random.seed(seed)
 		for i in range(self.options.populationSize):
-			individuals[i].SetSeed(seed)
+			self.individuals[i].SetSeed(seed)
 
 	def evaluate(self, evalEachInd):
 		# reset stats
@@ -42,9 +43,47 @@ class Population(object):
 			# increment the statistics
 			self.computeMinMaxSum(self.individuals[i])
 
+		#self.ScalePop()
+
 		# compute averages
 		self.fitStats[1] = self.fitStats[3] / self.options.populationSize
 		self.objStats[1] = self.objStats[3] / self.options.populationSize
+
+	def ScalePop(self):
+		# linearly scale the population
+		scaleA, scaleB = self.FindCoeffs();
+
+		scaledSumFitness = 0.0;
+		for i in range(self.options.populationSize	* self.options.chcLambda):
+			ind = self.individuals[i]
+			ind.scaledFitness = scaleA * ind.fitness + scaleB
+			scaledSumFitness += ind.scaledFitness
+
+	def FindCoeffs(self):
+		# find coeffs scale_constA and scale_constB for linear scaling according to f_scaled = scale_constA * f_raw + scale_constB */  
+
+		#d = 0;
+		min = self.fitStats[0]
+		avg = self.fitStats[1]
+		max = self.fitStats[2]
+
+		scaleFactor = 10
+
+		if (min > (scaleFactor * avg - max)/(scaleFactor - 1.0)):
+			d = max - avg
+			scaleConstA = (scaleFactor - 1.0) * avg / d
+			scaleConstB = avg * (max - (scaleFactor * avg))/d
+		else:  
+			d = avg - min;
+			scaleConstA = avg/d
+			scaleConstB = -min * avg/d
+		
+		if (d < 0.00001 and d > -0.00001):
+			scaleConstA = 1.0
+			scaleConstB = 0.0
+		
+		return scaleConstA, scaleConstB
+	
 
 	def resetStatistics(self):
 		# reset min
@@ -118,9 +157,23 @@ class Population(object):
 		return individual.fitness
 
 	def halve(self, child):
+		# reset stats
+		self.resetStatistics()
+		for i in range(self.options.populationSize):
+			# increment the statistics
+			self.computeMinMaxSum(self.individuals[i])
+
 		# evaluate new children
 		for	i in range(self.options.populationSize,	self.options.populationSize	* self.options.chcLambda):
 			self.individuals[i].evaluate()
+			self.computeMinMaxSum(self.individuals[i])
+
+		# compute averages
+		self.fitStats[1] = self.fitStats[3] / self.options.populationSize
+		self.objStats[1] = self.objStats[3] / self.options.populationSize
+
+		# scale population
+		#self.ScalePop()
 
 		# sort the population by fitness
 		self.individuals.sort (key = self.comparator, reverse = True)
@@ -136,8 +189,8 @@ class Population(object):
 		for i in range(self.eval.encodedDataLength):
 			c1.chromosome[i] = p1.chromosome[i]
 			c2.chromosome[i] = p2.chromosome[i]
-		if utils.flip(self.options.pCross):
-			xp = utils.randInt(1, self.eval.encodedDataLength)
+		if random.random() < self.options.pCross:
+			xp = random.randint(1, self.eval.encodedDataLength)
 			for i in range(xp, self.eval.encodedDataLength):
 				c1.chromosome[i] = p2.chromosome[i]
 				c2.chromosome[i] = p1.chromosome[i]
@@ -149,10 +202,10 @@ class Population(object):
 			c2.chromosome[i] = p2.chromosome[i]
 
 		# determine if crossover should happen
-		if utils.flip(self.options.pCross):
+		if random.random() < self.options.pCross:
 			# determine two points
-			x1 = utils.randInt(1, self.eval.encodedDataLength)
-			x2 = utils.randInt(1, self.eval.encodedDataLength)
+			x1 = random.randint(1, self.eval.encodedDataLength)
+			x2 = random.randint(1, self.eval.encodedDataLength)
 			minX = min(x1, x2)
 			maxX = max(x1, x2)
 

@@ -1,7 +1,7 @@
-NAME : lin105.opt.tour
-COMMENT : Optimal tour for lin105 (14379) 
-TYPE : TOUR
-DIMENSION : 105
+NAME: lin105.opt.tour
+COMMENT: Optimal tour for lin105 (14379) 
+TYPE: TOUR
+DIMENSION: 105
 TOUR_SECTION
 1
 2

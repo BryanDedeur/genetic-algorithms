@@ -20,13 +20,14 @@ class TSP:
 		file.close()
 
 		for i in range(len(lines)):
-			if lines[i].find('NAME: ') != -1:
-				self.name = lines[i].replace('NAME: ', '').replace('\n', '')
-			elif lines[i].find('DIMENSION: ') != -1:
-				self.dimensions = int(lines[i].replace('DIMENSION: ', ''))
-			elif lines[i].find('NODE_COORD_SECTION') != -1:
+			lines[i] = lines[i].lower()
+			if lines[i].find('name: ') != -1:
+				self.name = lines[i].replace('name: ', '').replace('\n', '')
+			elif lines[i].find('dimension: ') != -1:
+				self.dimensions = int(lines[i].replace('dimension: ', ''))
+			elif lines[i].find('node_coord_section') != -1:
 				i = i + 1
-				while lines[i].find('EOF') == -1:
+				while lines[i].lower().find('eof') == -1:
 					data = []
 					for subStr in lines[i].split():
 						try:

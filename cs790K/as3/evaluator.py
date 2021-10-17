@@ -11,6 +11,8 @@ class Evaluator:
 		self.problem = problem
 		self.tour = tour.Tour(problem, False)
 
+		self.counter = 0
+
 		if visualize:
 			self.bestTour = tour.Tour(problem, True)
 			self.bestTour.SetName(self.problem.name + ' best')
@@ -18,6 +20,9 @@ class Evaluator:
 			self.worstTour.SetName(self.problem.name + ' worst')
 			self.worstTour.totalCost = 0
 		self.encodedDataLength = len(self.problem.coordinates) - 1 # we skip the first
+
+	def ResetCounter(self):
+		self.counter = 0
 
 	def SetSeed(self, seed):
 		random.seed(seed)
@@ -40,6 +45,8 @@ class Evaluator:
 			print("Encoded data is invalid:" + encodedData)
 			quit()
 
+		self.counter += 1
+
 		# construct tour
 		self.tour.Clear()
 		for i in range(len(encodedData)):
@@ -50,13 +57,13 @@ class Evaluator:
 		if self.bestTour.totalCost > self.tour.totalCost:
 			self.bestTour.sequence = self.tour.sequence
 			self.bestTour.totalCost = self.tour.totalCost
-			self.bestTour.Visualize()
+			#self.bestTour.Visualize()
 
 		# track worst tour
 		if self.worstTour.totalCost < self.tour.totalCost:
 			self.worstTour.sequence = self.tour.sequence
 			self.worstTour.totalCost = self.tour.totalCost
-			self.worstTour.Visualize()
+			#self.worstTour.Visualize()
 
 		return 1/self.tour.totalCost, self.tour.totalCost
 
