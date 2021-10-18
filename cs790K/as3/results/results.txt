@@ -4,3 +4,4 @@ ga version	problem	pop size	num gens	selection	cross	p-cross	mutate	p-mutate	run
 1	eil51	200	300	chc	pmx	0.99	invert	0.05	30	-5.2544749799143995	0	60000.0
 1	lin105	200	300	chc	pmx	0.99	invert	0.05	30	-22.610025425390667	0	60000.0
 1	eil76	200	300	chc	pmx	0.99	invert	0.05	30	-10.530994805178384	0	60000.0
+1	berlin52	500	750	chc	pmx	0.99	invert	0.05	30	-6.951391560856736	0	375000.0

@@ -2,8 +2,8 @@
 
 class Options:
 	def __init__(self):
-		self.populationSize = 200
-		self.maxGen = 300
+		self.populationSize = 500
+		self.maxGen = 750
 		self.pCross = 0.99
 		self.pMut = 0.05
 

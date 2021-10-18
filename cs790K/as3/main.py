@@ -45,7 +45,7 @@ for filePath in listdir(solutionPath):
         print('Cannot find problem with matching solution name: ' + fileName)
 
 #for instanceName, instance in instances.items():
-instanceName = 'eil76'
+instanceName = 'berlin52'
 if instanceName in solutions:
     eval = evaluator.Evaluator(instances[instanceName], True)
     ga = GA(eval, False)

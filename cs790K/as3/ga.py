@@ -20,7 +20,7 @@ class GA:
 		self.maxObjective = 0
 		self.eval = evaler
 
-		self.qualityTolerance = -0.5
+		self.qualityTolerance = -5
 		self.runCount = 0
 		self.runsNearOptimum = 0
 
